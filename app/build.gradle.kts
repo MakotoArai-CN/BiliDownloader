@@ -11,7 +11,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../bili-release-key.jks")
+            storeFile = file("bili-release-key.jks")
             storePassword = "makoto"
             keyAlias = "bili"
             keyPassword = "makoto"
@@ -40,7 +40,7 @@ android {
         }
     }
 
-    buildTypes {
+     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -48,6 +48,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
