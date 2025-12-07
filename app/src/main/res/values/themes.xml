@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.BiliDownloader" parent="android:Theme.Material.Light.NoActionBar" />
+    
+    <style name="Theme.BiliDownloader.Splash" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/bili_blue</item>
+        <item name="android:statusBarColor">@color/bili_blue</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
+</resources>
