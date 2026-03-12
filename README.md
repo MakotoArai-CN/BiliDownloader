@@ -4,13 +4,13 @@
 
 <h1>Bili Downloader</h1>
 
-<p>基于 Bilibili 官方 API 开发的纯净哔哩哔哩视频下载器。</p>
+<p>基于 webview 开发的纯净哔哩哔哩视频下载器。</p>
 
 </div>
 
 ## 项目简介
 
-Bili Downloader 是一款基于 Bilibili 官方 API 开发的纯净哔哩哔哩视频下载器，可以实现 Bilibili 视频的下载、合并、批量下载等功能。项目完全离线，无任何第三方 SDK ，也没有任何遥测。视频合成使用纯原生 Kotlin 实现合并，非常轻。
+Bili Downloader 是一款基于 webview 开发的纯净哔哩哔哩视频下载器，可以实现 Bilibili 视频的下载、合并、批量下载等功能。项目完全离线，无任何第三方 SDK ，也没有任何遥测。视频合成使用纯原生 Kotlin 实现合并，非常轻。
 
 > 开发本项目的起因是Bilibili AS 越来越臃肿，专门下载视频的项目后来也无法正常下载视频，因此就有了本项目，不能说很轻，但是也不大。
 >
