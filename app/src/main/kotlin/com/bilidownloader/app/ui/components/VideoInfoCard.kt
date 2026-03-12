@@ -48,20 +48,39 @@ fun VideoInfoCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Timer,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = FormatUtil.formatDuration(videoInfo.duration),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+
+                if (videoInfo.duration > 0) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Timer,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = FormatUtil.formatDuration(videoInfo.duration),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+
+                if (videoInfo.pages.size > 1) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.VideoLibrary,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${videoInfo.pages.size}P",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             }
         }

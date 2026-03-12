@@ -422,19 +422,36 @@ class BiliApi {
             response.close()
 
             val json = JsonParser.parseString(jsonStr).asJsonObject
-            val data = json.getAsJsonObject("data")
-            if (data != null && data.has("subtitle")) {
-                val subtitle = data.getAsJsonObject("subtitle")
+            val data = json.getAsJsonObject("data") ?: return emptyList()
+            if (data.has("subtitle")) {
+                val subtitle = data.getAsJsonObject("subtitle") ?: return emptyList()
                 if (subtitle.has("subtitles")) {
                     val subtitles = subtitle.getAsJsonArray("subtitles")
-                    return subtitles.map { element ->
-                        val sub = element.asJsonObject
-                        SubtitleInfo(
-                            id = sub.get("id").asLong,
-                            lan = sub.get("lan").asString,
-                            lanDoc = sub.get("lan_doc").asString,
-                            url = "https:" + sub.getAsJsonObject("subtitle_url").get("url").asString
-                        )
+                    return subtitles.mapNotNull { element ->
+                        try {
+                            val sub = element.asJsonObject
+                            val subtitleUrl = when {
+                                sub.has("subtitle_url") && sub.get("subtitle_url").isJsonPrimitive -> {
+                                    val rawUrl = sub.get("subtitle_url").asString
+                                    if (rawUrl.startsWith("http")) rawUrl else "https:$rawUrl"
+                                }
+                                sub.has("subtitle_url") && sub.get("subtitle_url").isJsonObject -> {
+                                    val urlObj = sub.getAsJsonObject("subtitle_url")
+                                    val rawUrl = urlObj.get("url").asString
+                                    if (rawUrl.startsWith("http")) rawUrl else "https:$rawUrl"
+                                }
+                                else -> return@mapNotNull null
+                            }
+                            SubtitleInfo(
+                                id = sub.get("id")?.asLong ?: 0L,
+                                lan = sub.get("lan")?.asString ?: "",
+                                lanDoc = sub.get("lan_doc")?.asString ?: "unknown",
+                                url = subtitleUrl
+                            )
+                        } catch (e: Exception) {
+                            Log.e("BiliApi", "Failed to parse subtitle entry", e)
+                            null
+                        }
                     }
                 }
             }
@@ -525,20 +542,25 @@ class BiliApi {
         if (data.has("pages") && !data.get("pages").isJsonNull) {
             val pagesArray = data.getAsJsonArray("pages")
             for (i in 0 until pagesArray.size()) {
-                val page = pagesArray[i].asJsonObject
-                pages.add(PageInfo(
-                    page = page.get("page").asInt,
-                    cid = page.get("cid").asLong,
-                    part = page.get("part").asString,
-                    duration = page.get("duration").asLong
-                ))
+                try {
+                    val page = pagesArray[i].asJsonObject
+                    pages.add(PageInfo(
+                        page = page.get("page")?.asInt ?: (i + 1),
+                        cid = page.get("cid")?.asLong ?: 0L,
+                        part = page.get("part")?.asString ?: "P${i + 1}",
+                        duration = page.get("duration")?.asLong ?: 0L
+                    ))
+                } catch (e: Exception) {
+                    Log.e("BiliApi", "Failed to parse page $i", e)
+                }
             }
-        } else {
+        }
+        if (pages.isEmpty()) {
             pages.add(PageInfo(
                 page = 1,
-                cid = data.get("cid").asLong,
-                part = data.get("title").asString,
-                duration = data.get("duration").asLong
+                cid = data.get("cid")?.asLong ?: 0L,
+                part = data.get("title")?.asString ?: "未知",
+                duration = data.get("duration")?.asLong ?: 0L
             ))
         }
 
@@ -560,7 +582,9 @@ class BiliApi {
         }
 
         val duration = if (data.has("duration") && !data.get("duration").isJsonNull) {
-            data.get("duration").asLong
+            val d = data.get("duration").asLong
+            // If duration is 0, try to sum from pages
+            if (d > 0) d else pages.sumOf { it.duration }
         } else {
             pages.sumOf { it.duration }
         }

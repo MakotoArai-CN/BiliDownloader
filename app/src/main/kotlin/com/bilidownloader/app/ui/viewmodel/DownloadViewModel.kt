@@ -329,7 +329,7 @@ class DownloadViewModel : ViewModel() {
     }
 
     fun startDownload(context: Context) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val state = _uiState.value
             val videoInfo = state.videoInfo ?: return@launch
             val videoId = state.resolvedVideoId
@@ -381,16 +381,18 @@ class DownloadViewModel : ViewModel() {
                 } ?: emptyList()
 
                 val totalCount = pagesToDownload.size + episodesToDownload.size
-                var currentIndex = 0
+
+                // Build all tasks first, then enqueue together for concurrent execution
+                val allTasks = mutableListOf<DownloadTask>()
+                var taskIndex = 0
 
                 for (page in pagesToDownload) {
-                    if (hasError) break
-                    currentIndex++
+                    taskIndex++
+                    val idx = taskIndex
+                    Log.d("DownloadViewModel", "Preparing page ${page.page}: ${page.part}")
 
-                    Log.d("DownloadViewModel", "Downloading page ${page.page}: ${page.part}")
-
-                    val taskId = "page_${videoId}_${page.cid}_${System.currentTimeMillis()}"
-                    val task = DownloadTask(
+                    val taskId = "page_${videoId}_${page.cid}_${System.currentTimeMillis()}_$idx"
+                    allTasks.add(DownloadTask(
                         id = taskId,
                         videoId = videoId,
                         cid = page.cid,
@@ -411,7 +413,7 @@ class DownloadViewModel : ViewModel() {
                                         _uiState.update {
                                             it.copy(
                                                 downloadProgress = progress.copy(
-                                                    currentIndex = currentIndex,
+                                                    currentIndex = idx,
                                                     totalCount = totalCount
                                                 )
                                             )
@@ -423,22 +425,13 @@ class DownloadViewModel : ViewModel() {
                                 throw e
                             }
                         }
-                    )
-
-                    try {
-                        DownloadQueueManager.enqueue(task)
-                    } catch (e: Exception) {
-                        hasError = true
-                        errorMsg = formatErrorMessage(e)
-                        break
-                    }
+                    ))
                 }
 
                 for (episode in episodesToDownload) {
-                    if (hasError) break
-                    currentIndex++
-
-                    Log.d("DownloadViewModel", "Downloading episode ${episode.id}: ${episode.title}")
+                    taskIndex++
+                    val idx = taskIndex
+                    Log.d("DownloadViewModel", "Preparing episode ${episode.id}: ${episode.title}")
 
                     val episodePage = PageInfo(
                         page = episode.page,
@@ -447,8 +440,8 @@ class DownloadViewModel : ViewModel() {
                         duration = 0L
                     )
 
-                    val taskId = "episode_${episode.bvid}_${episode.cid}_${System.currentTimeMillis()}"
-                    val task = DownloadTask(
+                    val taskId = "episode_${episode.bvid}_${episode.cid}_${System.currentTimeMillis()}_$idx"
+                    allTasks.add(DownloadTask(
                         id = taskId,
                         videoId = episode.bvid,
                         cid = episode.cid,
@@ -469,7 +462,7 @@ class DownloadViewModel : ViewModel() {
                                         _uiState.update {
                                             it.copy(
                                                 downloadProgress = progress.copy(
-                                                    currentIndex = currentIndex,
+                                                    currentIndex = idx,
                                                     totalCount = totalCount
                                                 )
                                             )
@@ -481,16 +474,11 @@ class DownloadViewModel : ViewModel() {
                                 throw e
                             }
                         }
-                    )
-
-                    try {
-                        DownloadQueueManager.enqueue(task)
-                    } catch (e: Exception) {
-                        hasError = true
-                        errorMsg = formatErrorMessage(e)
-                        break
-                    }
+                    ))
                 }
+
+                // Enqueue all tasks and wait for completion
+                DownloadQueueManager.enqueueAllAndAwait(allTasks)
 
             } catch (e: Exception) {
                 Log.e("DownloadViewModel", "Download error", e)
@@ -498,17 +486,47 @@ class DownloadViewModel : ViewModel() {
                 errorMsg = formatErrorMessage(e)
             }
 
+            // Refresh downloaded status so UI hides download button for completed items
+            val currentState = _uiState.value
+            val updatedDownloadedPages = if (currentState.downloadRecordCheckEnabled && currentState.videoInfo != null) {
+                try {
+                    checkDownloadedPages(context, videoId, currentState.videoInfo.pages, state.selectedQuality)
+                } catch (e: Exception) {
+                    currentState.downloadedPages
+                }
+            } else {
+                currentState.downloadedPages
+            }
+
+            val updatedDownloadedEpisodes = if (currentState.downloadRecordCheckEnabled && currentState.videoInfo?.ugcSeason != null) {
+                try {
+                    checkDownloadedEpisodes(context, currentState.videoInfo.ugcSeason, state.selectedQuality)
+                } catch (e: Exception) {
+                    currentState.downloadedEpisodes
+                }
+            } else {
+                currentState.downloadedEpisodes
+            }
+
+            // Remove successfully downloaded pages/episodes from selection
+            val remainingPages = currentState.selectedPages - updatedDownloadedPages
+            val remainingEpisodes = currentState.selectedEpisodes - updatedDownloadedEpisodes
+
             _uiState.update {
                 it.copy(
                     isDownloading = false,
                     downloadProgress = null,
                     errorMessage = errorMsg,
-                    downloadComplete = !hasError
+                    downloadComplete = !hasError,
+                    downloadedPages = updatedDownloadedPages,
+                    downloadedEpisodes = updatedDownloadedEpisodes,
+                    selectedPages = remainingPages,
+                    selectedEpisodes = remainingEpisodes
                 )
             }
 
             if (!hasError) {
-                Log.d("DownloadViewModel", "All downloads queued successfully")
+                Log.d("DownloadViewModel", "All downloads completed successfully")
             }
         }
     }

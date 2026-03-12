@@ -13,8 +13,13 @@ import com.bilidownloader.app.util.VideoMetadata
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.TimeUnit
+import java.util.zip.Inflater
 
 class DownloadRepository(private val context: Context) {
     private val api = BiliApi()
@@ -303,16 +308,63 @@ class DownloadRepository(private val context: Context) {
             onProgress(DownloadProgress(danmakuText = "下载弹幕..."))
 
             val danmakuFile = File(outputDir, "danmaku.xml")
-            val downloader = MultiModeDownloader(context)
-
             val url = "https://api.bilibili.com/x/v1/dm/list.so?oid=$cid"
 
-            downloader.download(url, danmakuFile, "") { current, total ->
-                val progress = if (total > 0) current.toFloat() / total.toFloat() else 0f
-                onProgress(DownloadProgress(
-                    danmakuProgress = progress,
-                    danmakuText = "弹幕 ${(progress * 100).toInt()}%"
-                ))
+            // The danmaku API returns deflate-compressed data, need to decompress manually
+            withContext(Dispatchers.IO) {
+                val httpClient = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(url)
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                    .header("Referer", "https://www.bilibili.com")
+                    .header("Accept-Encoding", "deflate")
+                    .build()
+
+                val response = httpClient.newCall(request).execute()
+                val responseBody = response.body ?: throw Exception("Empty danmaku response")
+                val rawBytes: ByteArray = responseBody.bytes()
+                response.close()
+
+                onProgress(DownloadProgress(danmakuProgress = 0.5f, danmakuText = "弹幕解压中..."))
+
+                // Try deflate decompression first, then raw inflate
+                val xmlString = try {
+                    val inflater = Inflater()
+                    inflater.setInput(rawBytes, 0, rawBytes.size)
+                    val baos = ByteArrayOutputStream()
+                    val buf = ByteArray(4096)
+                    while (!inflater.finished()) {
+                        val count = inflater.inflate(buf)
+                        if (count == 0 && inflater.needsInput()) break
+                        baos.write(buf, 0, count)
+                    }
+                    inflater.end()
+                    baos.toString("UTF-8")
+                } catch (e: Exception) {
+                    // Fallback: try with nowrap=true (raw deflate without zlib header)
+                    try {
+                        val inflater = Inflater(true)
+                        inflater.setInput(rawBytes, 0, rawBytes.size)
+                        val baos = ByteArrayOutputStream()
+                        val buf = ByteArray(4096)
+                        while (!inflater.finished()) {
+                            val count = inflater.inflate(buf)
+                            if (count == 0 && inflater.needsInput()) break
+                            baos.write(buf, 0, count)
+                        }
+                        inflater.end()
+                        baos.toString("UTF-8")
+                    } catch (e2: Exception) {
+                        // Last resort: maybe it's not compressed at all
+                        String(rawBytes, Charsets.UTF_8)
+                    }
+                }
+
+                danmakuFile.writeText(xmlString, Charsets.UTF_8)
             }
 
             onProgress(DownloadProgress(danmakuProgress = 1f, danmakuText = "弹幕完成"))
@@ -338,23 +390,41 @@ class DownloadRepository(private val context: Context) {
                 return
             }
 
-            val downloader = MultiModeDownloader(context)
             var completed = 0
 
             for (subtitle in subtitles) {
                 val subtitleFile = File(outputDir, "subtitle_${subtitle.lanDoc}.json")
                 val url = if (subtitle.url.startsWith("http")) subtitle.url else "https:${subtitle.url}"
 
-                downloader.download(url, subtitleFile, "") { current, total ->
-                    val progress = if (total > 0) current.toFloat() / total.toFloat() else 0f
-                    val overallProgress = (completed + progress) / subtitles.size
-                    onProgress(DownloadProgress(
-                        subtitleProgress = overallProgress,
-                        subtitleText = "字幕 ${subtitle.lanDoc} ${(progress * 100).toInt()}%"
-                    ))
+                // Download subtitle with explicit UTF-8 handling
+                withContext(Dispatchers.IO) {
+                    val httpClient = OkHttpClient.Builder()
+                        .connectTimeout(30, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS)
+                        .followRedirects(true)
+                        .build()
+
+                    val request = Request.Builder()
+                        .url(url)
+                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                        .header("Referer", "https://www.bilibili.com")
+                        .build()
+
+                    val response = httpClient.newCall(request).execute()
+                    val responseBody = response.body ?: throw Exception("Empty subtitle response")
+                    // Force UTF-8 decoding regardless of server charset header
+                    val rawBytes: ByteArray = responseBody.bytes()
+                    response.close()
+
+                    subtitleFile.writeText(String(rawBytes, Charsets.UTF_8), Charsets.UTF_8)
                 }
 
                 completed++
+                val overallProgress = completed.toFloat() / subtitles.size
+                onProgress(DownloadProgress(
+                    subtitleProgress = overallProgress,
+                    subtitleText = "字幕 ${subtitle.lanDoc} 完成"
+                ))
                 Log.d("DownloadRepository", "Subtitle downloaded: ${subtitleFile.absolutePath}")
             }
 

@@ -6,9 +6,9 @@ object LinkExtractor {
     private const val TAG = "LinkExtractor"
     
     private val URL_PATTERNS = listOf(
-        Regex("https?://[^\\s]+bilibili\\.com[^\\s]*"),
-        Regex("https?://[^\\s]+b23\\.tv[^\\s]*"),
-        Regex("https?://[^\\s]+bilivideo\\.[^\\s]*")
+        Regex("https?://[^\\s]*bilibili\\.com[^\\s]*"),
+        Regex("https?://[^\\s]*b23\\.tv[^\\s]*"),
+        Regex("https?://[^\\s]*bilivideo\\.[^\\s]*")
     )
     
     private val VIDEO_ID_PATTERNS = listOf(
@@ -20,11 +20,14 @@ object LinkExtractor {
     
     fun extractLink(text: String): String? {
         val trimmed = text.trim()
-        
+
         for (pattern in URL_PATTERNS) {
             val match = pattern.find(trimmed)
             if (match != null) {
-                val url = match.value
+                // Remove trailing non-URL characters (Chinese punctuation, brackets, etc.)
+                val url = match.value.trimEnd { c ->
+                    c.code > 0x7F || c == ')' || c == ']' || c == '>' || c == '"' || c == '\''
+                }
                 Log.d(TAG, "Extracted URL: $url")
                 return url
             }
