@@ -3,6 +3,7 @@ package com.bilidownloader.app.ui.components
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import com.bilidownloader.app.BuildConfig
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Web
 import androidx.compose.material3.AlertDialog
@@ -109,20 +111,20 @@ fun SettingsDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "外观",
+                    text = stringResource(R.string.settings_appearance),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
                 ListItem(
-                    headlineContent = { Text("主题模式") },
+                    headlineContent = { Text(stringResource(R.string.settings_theme)) },
                     supportingContent = {
                         Text(
                             when (settings.themeMode) {
-                                ThemeMode.SYSTEM -> "跟随系统"
-                                ThemeMode.LIGHT -> "浅色模式"
-                                ThemeMode.DARK -> "深色模式"
+                                ThemeMode.SYSTEM -> stringResource(R.string.theme_system)
+                                ThemeMode.LIGHT -> stringResource(R.string.theme_light)
+                                ThemeMode.DARK -> stringResource(R.string.theme_dark)
                             }
                         )
                     },
@@ -133,9 +135,9 @@ fun SettingsDialog(
 
                 SegmentedButtonGroup(
                     items = listOf(
-                        SegmentedButtonItem("自动", Icons.Default.Brightness4, ThemeMode.SYSTEM.value),
-                        SegmentedButtonItem("浅色", Icons.Default.LightMode, ThemeMode.LIGHT.value),
-                        SegmentedButtonItem("深色", Icons.Default.DarkMode, ThemeMode.DARK.value)
+                        SegmentedButtonItem(stringResource(R.string.theme_auto), Icons.Default.Brightness4, ThemeMode.SYSTEM.value),
+                        SegmentedButtonItem(stringResource(R.string.theme_light), Icons.Default.LightMode, ThemeMode.LIGHT.value),
+                        SegmentedButtonItem(stringResource(R.string.theme_dark), Icons.Default.DarkMode, ThemeMode.DARK.value)
                     ),
                     selectedValue = settings.themeMode.value,
                     onSelectionChange = { value ->
@@ -149,7 +151,7 @@ fun SettingsDialog(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "下载",
+                    text = stringResource(R.string.settings_download),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -169,7 +171,7 @@ fun SettingsDialog(
                 )
 
                 ListItem(
-                    headlineContent = { Text("文件命名格式") },
+                    headlineContent = { Text(stringResource(R.string.filename_format)) },
                     supportingContent = { Text(settings.filenameFormat) },
                     leadingContent = {
                         Icon(Icons.Default.TextFields, contentDescription = null)
@@ -182,8 +184,8 @@ fun SettingsDialog(
                 )
 
                 ListItem(
-                    headlineContent = { Text("最大并发下载") },
-                    supportingContent = { Text("${settings.maxConcurrentDownloads} 个任务") },
+                    headlineContent = { Text(stringResource(R.string.max_concurrent)) },
+                    supportingContent = { Text(stringResource(R.string.max_concurrent_desc, settings.maxConcurrentDownloads)) },
                     leadingContent = {
                         Icon(Icons.Default.Download, contentDescription = null)
                     }
@@ -198,33 +200,41 @@ fun SettingsDialog(
                 )
 
                 SwitchListItem(
-                    title = "下载记录检测",
-                    description = "自动检测已下载的视频",
+                    title = stringResource(R.string.download_record_check),
+                    description = stringResource(R.string.download_record_check_desc),
                     icon = Icons.Default.History,
                     checked = settings.downloadRecordCheckEnabled,
                     onCheckedChange = { viewModel.updateDownloadRecordCheckEnabled(it) }
                 )
 
                 SwitchListItem(
-                    title = "附加内容下载",
-                    description = "启用封面、弹幕、字幕下载选项",
+                    title = stringResource(R.string.extra_content_download),
+                    description = stringResource(R.string.extra_content_download_desc),
                     icon = Icons.Default.Add,
                     checked = settings.extraContentEnabled,
                     onCheckedChange = { viewModel.updateExtraContentEnabled(it) }
                 )
 
+                SwitchListItem(
+                    title = stringResource(R.string.smart_download),
+                    description = stringResource(R.string.smart_download_desc),
+                    icon = Icons.Default.Tune,
+                    checked = settings.smartDownloadEnabled,
+                    onCheckedChange = { viewModel.updateSmartDownloadEnabled(it) }
+                )
+
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "网络",
+                    text = stringResource(R.string.settings_network),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
                 SwitchListItem(
-                    title = "移动网络警告",
-                    description = "使用流量下载时提醒",
+                    title = stringResource(R.string.mobile_warning),
+                    description = stringResource(R.string.mobile_warning_desc),
                     icon = Icons.Default.Warning,
                     checked = settings.networkWarningEnabled,
                     onCheckedChange = { viewModel.updateNetworkWarningEnabled(it) }
@@ -233,15 +243,15 @@ fun SettingsDialog(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "后台",
+                    text = stringResource(R.string.settings_background),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
                 SwitchListItem(
-                    title = "后台下载",
-                    description = "下载时保持后台运行，完成后通知",
+                    title = stringResource(R.string.background_download),
+                    description = stringResource(R.string.background_download_desc),
                     icon = Icons.Default.CloudDownload,
                     checked = settings.backgroundDownloadEnabled,
                     onCheckedChange = { viewModel.updateBackgroundDownloadEnabled(it) }
@@ -250,7 +260,7 @@ fun SettingsDialog(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "账号",
+                    text = stringResource(R.string.settings_account),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -259,7 +269,7 @@ fun SettingsDialog(
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.cookie_settings)) },
                     supportingContent = {
-                        Text(if (settings.cookie.isNotEmpty()) "已设置" else "未设置")
+                        Text(if (settings.cookie.isNotEmpty()) stringResource(R.string.cookie_status_set) else stringResource(R.string.cookie_status_not_set))
                     },
                     leadingContent = {
                         Icon(Icons.Default.Lock, contentDescription = null)
@@ -269,7 +279,7 @@ fun SettingsDialog(
                 ListItem(
                     headlineContent = { Text("WebView UA") },
                     supportingContent = {
-                        Text(if (settings.webViewUA == WebViewUA.PC) "PC浏览器" else "移动端浏览器")
+                        Text(if (settings.webViewUA == WebViewUA.PC) stringResource(R.string.webview_ua_pc) else stringResource(R.string.webview_ua_mobile))
                     },
                     leadingContent = {
                         Icon(Icons.Default.Web, contentDescription = null)
@@ -335,22 +345,22 @@ fun SettingsDialog(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "其他",
+                    text = stringResource(R.string.settings_other),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
                 ListItem(
-                    headlineContent = { Text("缓存管理") },
-                    supportingContent = { Text("当前缓存: ${FileUtil.formatBytes(cacheSize)}") },
+                    headlineContent = { Text(stringResource(R.string.cache_management)) },
+                    supportingContent = { Text(stringResource(R.string.cache_size, FileUtil.formatBytes(cacheSize))) },
                     leadingContent = {
                         Icon(Icons.Default.Storage, contentDescription = null)
                     },
                     trailingContent = {
                         if (cacheSize > 0) {
                             TextButton(onClick = { showClearCacheConfirm = true }) {
-                                Text("清除")
+                                Text(stringResource(R.string.clear))
                             }
                         }
                     }
@@ -370,7 +380,7 @@ fun SettingsDialog(
 
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.version)) },
-                    supportingContent = { Text("1.0.0") },
+                    supportingContent = { Text(BuildConfig.VERSION_NAME) },
                     leadingContent = {
                         Icon(Icons.Default.Info, contentDescription = null)
                     }
@@ -406,8 +416,8 @@ fun SettingsDialog(
     if (showClearCacheConfirm) {
         AlertDialog(
             onDismissRequest = { showClearCacheConfirm = false },
-            title = { Text("清除缓存") },
-            text = { Text("确定要清除所有缓存文件吗？") },
+            title = { Text(stringResource(R.string.clear_cache)) },
+            text = { Text(stringResource(R.string.clear_cache_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -416,7 +426,7 @@ fun SettingsDialog(
                         onDismiss()
                     }
                 ) {
-                    Text("确定")
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
@@ -492,7 +502,7 @@ private fun CookieInputDialog(
         },
         confirmButton = {
             TextButton(onClick = { onConfirm(cookie) }) {
-                Text("确定")
+                Text(stringResource(R.string.confirm))
             }
         },
         dismissButton = {
@@ -517,7 +527,7 @@ private fun FilenameFormatDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("文件命名格式") },
+        title = { Text(stringResource(R.string.filename_format_title)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -526,14 +536,14 @@ private fun FilenameFormatDialog(
                     value = format,
                     onValueChange = { format = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("命名格式") },
+                    label = { Text(stringResource(R.string.filename_format_label)) },
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "可用标签（点击添加）：",
+                    text = stringResource(R.string.filename_tokens_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -569,17 +579,17 @@ private fun FilenameFormatDialog(
                         modifier = Modifier.padding(12.dp)
                     ) {
                         Text(
-                            text = "预览：",
+                            text = stringResource(R.string.filename_preview),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = format
-                                .replace("{title}", "示例视频标题")
-                                .replace("{author}", "示例UP主")
+                                .replace("{title}", stringResource(R.string.filename_preview_title))
+                                .replace("{author}", stringResource(R.string.filename_preview_author))
                                 .replace("{bvid}", "BV1234567890")
                                 .replace("{avid}", "av12345678")
-                                .replace("{part_title}", "第1集")
+                                .replace("{part_title}", stringResource(R.string.filename_preview_part))
                                 .replace("{part_num}", "1")
                                 .replace("{quality}", "1080P")
                                 .replace("{date}", "2024-01-01"),
@@ -598,13 +608,13 @@ private fun FilenameFormatDialog(
                         onClick = { format = SettingsRepository.DEFAULT_FILENAME_FORMAT },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("重置")
+                        Text(stringResource(R.string.reset))
                     }
                     OutlinedButton(
                         onClick = { format = "" },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("清空")
+                        Text(stringResource(R.string.clear))
                     }
                 }
             }
@@ -613,12 +623,12 @@ private fun FilenameFormatDialog(
             TextButton(
                 onClick = { onConfirm(format.ifEmpty { SettingsRepository.DEFAULT_FILENAME_FORMAT }) }
             ) {
-                Text("确定")
+                Text(stringResource(R.string.confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

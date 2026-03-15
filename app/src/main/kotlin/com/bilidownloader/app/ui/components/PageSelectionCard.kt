@@ -49,9 +49,9 @@ fun PageSelectionCard(
             ) {
                 Text(
                     text = if (showUgcSeason && ugcSeason != null) {
-                        "选择合集 (共 ${ugcSeason.sections.sumOf { it.episodes.size }} 集)"
+                        stringResource(R.string.select_collection, ugcSeason.sections.sumOf { it.episodes.size })
                     } else {
-                        "选择分P (共 ${pages.size} 个)"
+                        stringResource(R.string.select_parts, pages.size)
                     },
                     style = MaterialTheme.typography.titleSmall
                 )
@@ -66,7 +66,7 @@ fun PageSelectionCard(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(if (showUgcSeason) "切换到分P" else "切换到合集")
+                        Text(if (showUgcSeason) stringResource(R.string.switch_to_parts) else stringResource(R.string.switch_to_collection))
                     }
                 }
             }
@@ -199,12 +199,12 @@ private fun PageItem(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             Icons.Default.CheckCircle,
-                            contentDescription = "已下载",
+                            contentDescription = stringResource(R.string.downloaded),
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "已下载",
+                            text = stringResource(R.string.downloaded),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -271,12 +271,12 @@ private fun EpisodeItem(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             Icons.Default.CheckCircle,
-                            contentDescription = "已下载",
+                            contentDescription = stringResource(R.string.downloaded),
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "已下载",
+                            text = stringResource(R.string.downloaded),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )

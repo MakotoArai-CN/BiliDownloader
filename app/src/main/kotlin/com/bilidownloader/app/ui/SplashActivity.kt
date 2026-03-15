@@ -20,8 +20,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bilidownloader.app.R
 import com.bilidownloader.app.ui.theme.BiliDownloaderTheme
 import kotlinx.coroutines.delay
 
@@ -122,7 +124,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Bili 下载",
+                text = stringResource(R.string.splash_app_name),
                 modifier = Modifier.alpha(textAlpha),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
@@ -132,7 +134,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "视频下载助手",
+                text = stringResource(R.string.splash_app_desc),
                 modifier = Modifier.alpha(textAlpha),
                 fontSize = 16.sp,
                 color = Color.White.copy(alpha = 0.8f)

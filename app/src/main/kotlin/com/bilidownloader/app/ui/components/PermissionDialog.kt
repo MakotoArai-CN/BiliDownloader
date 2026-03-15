@@ -7,8 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.bilidownloader.app.R
 
 @Composable
 fun PermissionDialog(
@@ -27,7 +29,7 @@ fun PermissionDialog(
         },
         title = {
             Text(
-                text = "需要存储权限",
+                text = stringResource(R.string.storage_permission_needed),
                 textAlign = TextAlign.Center
             )
         },
@@ -36,7 +38,7 @@ fun PermissionDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "为了保存下载的视频文件，应用需要获取存储权限。",
+                    text = stringResource(R.string.storage_permission_reason),
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -46,7 +48,7 @@ fun PermissionDialog(
                     )
                 ) {
                     Text(
-                        text = "请在接下来的系统弹窗中点击「允许」",
+                        text = stringResource(R.string.storage_permission_hint),
                         modifier = Modifier.padding(12.dp),
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
@@ -57,12 +59,12 @@ fun PermissionDialog(
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text("去授权")
+                Text(stringResource(R.string.grant_permission))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("暂不授权")
+                Text(stringResource(R.string.skip_permission))
             }
         }
     )

@@ -15,9 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import com.bilidownloader.app.R
 import com.bilidownloader.app.util.FileUtil
 import java.io.File
 import java.text.SimpleDateFormat
@@ -43,8 +45,9 @@ fun FileManagerDialog(
     var showSortMenu by remember { mutableStateOf(false) }
     var selectedFile by remember { mutableStateOf<File?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var refreshTrigger by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(sortType, sortOrder) {
+    LaunchedEffect(sortType, sortOrder, refreshTrigger) {
         files = FileUtil.getDownloadedFiles(context).let { list ->
             when (sortType) {
                 SortType.NAME -> if (sortOrder == SortOrder.ASC) {
@@ -84,19 +87,19 @@ fun FileManagerDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "已下载文件 (${files.size})",
+                        text = stringResource(R.string.downloaded_files, files.size),
                         style = MaterialTheme.typography.titleLarge
                     )
                     Row {
                         IconButton(onClick = { showSortMenu = true }) {
-                            Icon(Icons.Default.Sort, contentDescription = "排序")
+                            Icon(Icons.Default.Sort, contentDescription = stringResource(R.string.sort))
                         }
                         DropdownMenu(
                             expanded = showSortMenu,
                             onDismissRequest = { showSortMenu = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("按名称") },
+                                text = { Text(stringResource(R.string.sort_by_name)) },
                                 onClick = {
                                     sortType = SortType.NAME
                                     showSortMenu = false
@@ -106,7 +109,7 @@ fun FileManagerDialog(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("按大小") },
+                                text = { Text(stringResource(R.string.sort_by_size)) },
                                 onClick = {
                                     sortType = SortType.SIZE
                                     showSortMenu = false
@@ -116,7 +119,7 @@ fun FileManagerDialog(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("按时间") },
+                                text = { Text(stringResource(R.string.sort_by_time)) },
                                 onClick = {
                                     sortType = SortType.DATE
                                     showSortMenu = false
@@ -127,7 +130,7 @@ fun FileManagerDialog(
                             )
                             Divider()
                             DropdownMenuItem(
-                                text = { Text(if (sortOrder == SortOrder.ASC) "升序" else "降序") },
+                                text = { Text(if (sortOrder == SortOrder.ASC) stringResource(R.string.sort_asc) else stringResource(R.string.sort_desc)) },
                                 onClick = {
                                     sortOrder = if (sortOrder == SortOrder.ASC) {
                                         SortOrder.DESC
@@ -149,7 +152,7 @@ fun FileManagerDialog(
                             )
                         }
                         IconButton(onClick = onDismiss) {
-                            Icon(Icons.Default.Close, contentDescription = "关闭")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                         }
                     }
                 }
@@ -170,7 +173,7 @@ fun FileManagerDialog(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "暂无下载文件",
+                                text = stringResource(R.string.no_downloaded_files),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.outline
                             )
@@ -189,35 +192,31 @@ fun FileManagerDialog(
                                     try {
                                         val authority = "${context.packageName}.fileprovider"
                                         val uri = FileProvider.getUriForFile(context, authority, file)
-                                        
-                                        val mimeType = when {
-                                            file.name.endsWith(".mp4", ignoreCase = true) -> "video/mp4"
-                                            file.name.endsWith(".m4s", ignoreCase = true) -> "video/mp4"
-                                            file.name.endsWith(".m4a", ignoreCase = true) -> "audio/mp4"
-                                            file.name.endsWith(".mp3", ignoreCase = true) -> "audio/mpeg"
-                                            file.name.endsWith(".xml", ignoreCase = true) -> "text/xml"
-                                            file.name.endsWith(".ass", ignoreCase = true) -> "text/plain"
-                                            file.name.endsWith(".srt", ignoreCase = true) -> "text/plain"
-                                            file.name.endsWith(".jpg", ignoreCase = true) -> "image/jpeg"
-                                            file.name.endsWith(".png", ignoreCase = true) -> "image/png"
-                                            file.name.endsWith(".webp", ignoreCase = true) -> "image/webp"
+                                        val mimeType = when (file.extension.lowercase()) {
+                                            "mp4" -> "video/mp4"
+                                            "m4s" -> "video/mp4"
+                                            "m4a" -> "audio/mp4"
+                                            "mp3" -> "audio/mpeg"
+                                            "xml" -> "text/xml"
+                                            "json" -> "application/json"
+                                            "ass", "srt" -> "text/plain"
+                                            "jpg", "jpeg" -> "image/jpeg"
+                                            "png" -> "image/png"
+                                            "webp" -> "image/webp"
                                             else -> "*/*"
                                         }
-
                                         val intent = Intent(Intent.ACTION_VIEW).apply {
                                             setDataAndType(uri, mimeType)
                                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         }
-
-                                        val chooser = Intent.createChooser(intent, "选择应用打开")
+                                        val chooser = Intent.createChooser(intent, context.getString(R.string.choose_app))
                                         chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         context.startActivity(chooser)
-
                                     } catch (e: Exception) {
                                         Toast.makeText(
                                             context,
-                                            "打开文件失败: ${e.message}",
+                                            context.getString(R.string.open_file_failed, e.message ?: ""),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -238,23 +237,35 @@ fun FileManagerDialog(
     if (showDeleteConfirm && selectedFile != null) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("确认删除") },
-            text = { Text("确定要删除 ${selectedFile?.name} 吗？") },
+            title = { Text(stringResource(R.string.confirm_delete)) },
+            text = { Text(stringResource(R.string.confirm_delete_msg, selectedFile?.name ?: "")) },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        selectedFile?.delete()
-                        files = files.filter { it != selectedFile }
+                        val fileToDelete = selectedFile
+                        if (fileToDelete != null) {
+                            val deleted = FileUtil.deleteFileOrDirectory(fileToDelete)
+                            if (deleted) {
+                                refreshTrigger++
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.delete_failed),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                refreshTrigger++
+                            }
+                        }
                         showDeleteConfirm = false
                         selectedFile = null
                     }
                 ) {
-                    Text("删除", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("取消")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -271,17 +282,13 @@ private fun FileItem(
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()) }
 
     val fileIcon = remember(file.name) {
-        when {
-            file.name.endsWith(".mp4", ignoreCase = true) -> Icons.Default.VideoFile
-            file.name.endsWith(".m4s", ignoreCase = true) -> Icons.Default.VideoFile
-            file.name.endsWith(".m4a", ignoreCase = true) -> Icons.Default.AudioFile
-            file.name.endsWith(".mp3", ignoreCase = true) -> Icons.Default.AudioFile
-            file.name.endsWith(".xml", ignoreCase = true) -> Icons.Default.Chat
-            file.name.endsWith(".ass", ignoreCase = true) -> Icons.Default.Subtitles
-            file.name.endsWith(".srt", ignoreCase = true) -> Icons.Default.Subtitles
-            file.name.endsWith(".jpg", ignoreCase = true) -> Icons.Default.Image
-            file.name.endsWith(".png", ignoreCase = true) -> Icons.Default.Image
-            file.name.endsWith(".webp", ignoreCase = true) -> Icons.Default.Image
+        when (file.extension.lowercase()) {
+            "mp4" -> Icons.Default.VideoFile
+            "m4s" -> Icons.Default.VideoFile
+            "m4a", "mp3" -> Icons.Default.AudioFile
+            "xml" -> Icons.Default.Chat
+            "json", "ass", "srt" -> Icons.Default.Subtitles
+            "jpg", "jpeg", "png", "webp" -> Icons.Default.Image
             else -> Icons.Default.InsertDriveFile
         }
     }
@@ -331,7 +338,7 @@ private fun FileItem(
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "删除",
+                    contentDescription = stringResource(R.string.delete),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

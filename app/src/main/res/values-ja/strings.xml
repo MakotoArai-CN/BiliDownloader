@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BiliDown</string>
+    <string name="paste_hint">BV/EP番号またはリンクを貼り付け</string>
+    <string name="parse">解析</string>
+    <string name="download">ダウンロード</string>
+    <string name="settings">設定</string>
+    <string name="quality">画質</string>
+    <string name="download_path">保存先</string>
+    <string name="cookie_settings">Cookie設定</string>
+    <string name="login_bili">Bilibiliにログイン</string>
+    <string name="manual_cookie">Cookieを手動入力</string>
+    <string name="select_all">全選択</string>
+    <string name="deselect_all">全解除</string>
+    <string name="reverse_select">反転</string>
+    <string name="downloading">ダウンロード中</string>
+    <string name="download_complete">ダウンロード完了</string>
+    <string name="merge_method">結合方法</string>
+    <string name="js_merge">ネイティブ結合</string>
+    <string name="separate_download">分離ダウンロード</string>
+    <string name="parsing">解析中</string>
+    <string name="parse_error">解析エラー</string>
+    <string name="download_error">ダウンロードエラー</string>
+
+    <!-- Common -->
+    <string name="confirm">OK</string>
+    <string name="cancel">キャンセル</string>
+    <string name="close">閉じる</string>
+    <string name="about">について</string>
+    <string name="version">バージョン</string>
+    <string name="save">保存</string>
+    <string name="done">完了</string>
+    <string name="back">戻る</string>
+    <string name="reset">リセット</string>
+    <string name="clear">クリア</string>
+
+    <!-- Cookie -->
+    <string name="cookie_set">Cookieが設定されました</string>
+    <string name="cookie_input_title">Cookieを入力</string>
+    <string name="cookie_input_hint">ヒント：ブラウザでBilibiliにログインし、F12で開発者ツールを開き、NetworkタブからCookie値をコピーしてください</string>
+
+    <!-- Agreement Dialog -->
+    <string name="agreement_title">利用規約・プライバシーポリシー</string>
+    <string name="accept">同意する</string>
+    <string name="decline">拒否する</string>
+    <string name="welcome_title">BiliDownへようこそ</string>
+    <string name="welcome_message">以下の規約をよくお読みください。本アプリを使用することで、以下の条項に同意したものとみなします：</string>
+    <string name="agreement_confirm_hint">「同意する」をクリックすると、上記すべての条項を読み、同意したことになります</string>
+
+    <string name="agreement_section_1_title">一、利用規約</string>
+    <string name="agreement_section_1_content">1. 本アプリは個人的な学習・研究目的でのみ使用できます。商用利用は固く禁じます。\n\n2. ダウンロードした動画の著作権は原作者に帰属します。知的財産権を尊重してください。\n\n3. ダウンロードした動画を以下の目的で使用してはなりません：\n   - 他のプラットフォームへの転載\n   - 商用目的または営利行為\n   - 他者の権利侵害\n   - その他法令に違反する行為\n\n4. 本アプリは使用に伴ういかなる法的責任も負いません。\n\n5. 本アプリはいつでも本規約を変更する権利を有します。</string>
+
+    <string name="agreement_section_2_title">二、プライバシーポリシー</string>
+    <string name="agreement_section_2_content">1. データ収集\n   本アプリは個人情報を収集しません。すべての操作はローカルで行われます。\n\n2. Cookieの使用\n   提供されたCookieはデバイスのローカルに保存され、Bilibili APIへのアクセスにのみ使用されます。\n\n3. ストレージ権限\n   ダウンロードした動画ファイルを保存するためにストレージ権限が必要です。\n\n4. ネットワーク権限\n   Bilibili APIへのアクセスとコンテンツのダウンロードにネットワーク権限が必要です。\n\n5. データセキュリティ\n   すべてのデータはローカルデバイスに保存されます。サーバーへのアップロードは行われません。\n\n6. サードパーティサービス\n   本アプリはBilibiliの公開APIを使用しています。Bilibiliの利用規約にも従ってください。</string>
+
+    <string name="agreement_section_3_title">三、免責事項</string>
+    <string name="agreement_section_3_content">1. 本アプリは「現状のまま」提供され、いかなる保証もありません。\n\n2. 本アプリの使用に伴うリスクはすべてユーザーが負担します。\n\n3. 開発者はいかなる直接的・間接的損失にも責任を負いません。\n\n4. 本アプリは技術学習のみを目的としています。オリジナルコンテンツクリエイターを応援してください。\n\n5. これらの条項に同意しない場合は、直ちに本アプリの使用を中止してください。</string>
+
+    <!-- MainScreen -->
+    <string name="app_title_full">Bilibili動画ダウンロード</string>
+    <string name="app_subtitle">BV、AV、EP、コレクション、共有リンク対応</string>
+    <string name="file_manager">ファイル管理</string>
+    <string name="file_exists_hint">ファイルが存在します。タップして確認</string>
+
+    <!-- Splash -->
+    <string name="splash_title">BiliDown</string>
+    <string name="splash_subtitle">動画ダウンロードアシスタント</string>
+
+    <!-- WebView Login -->
+    <string name="login_bilibili">Bilibiliにログイン</string>
+    <string name="logged_in_as">ログイン中：%s</string>
+    <string name="login_success">ログイン成功</string>
+    <string name="login_success_cookie_saved">ログイン成功、Cookieが保存されました</string>
+    <string name="login_success_detected">Bilibiliへのログインを検出しました。</string>
+    <string name="login_save_hint">右上の「完了」ボタンをクリックしてログイン状態を保存</string>
+    <string name="login_user">ユーザー：%s</string>
+    <string name="login_save_prompt">「保存して戻る」をクリックしてログイン状態をアプリに保存します。</string>
+    <string name="save_and_return">保存して戻る</string>
+    <string name="continue_browsing">ブラウジングを続ける</string>
+
+    <!-- DownloadViewModel errors -->
+    <string name="error_occurred">エラー：%s</string>
+    <string name="error_empty_input">動画リンクまたはIDを入力してください</string>
+    <string name="error_invalid_input">入力テキストが長すぎるか、無効な内容が含まれています\n有効なBilibiliリンクまたは動画IDを入力してください</string>
+    <string name="error_cannot_identify">動画IDを識別できません\n対応フォーマット：\nBV、AV、EP、SS番号\nまたは完全なBilibiliリンク</string>
+    <string name="error_parse_failed">解析失敗：%s</string>
+    <string name="error_invalid_video_id">無効な動画ID、再度解析してください</string>
+    <string name="error_select_page">少なくとも1つのパートまたはコレクションを選択してください</string>
+    <string name="error_separate_select">分離モードでは動画または音声を選択してください</string>
+    <string name="error_download_failed">ダウンロード失敗</string>
+    <string name="error_unknown">不明なエラー</string>
+    <string name="preparing_download">ダウンロード準備中…</string>
+    <string name="error_dns_local">ネットワークエラー：DNSがローカルアドレスに解決されました\nVPN/プロキシ/AdGuardが原因の可能性があります\n無効にしてみてください</string>
+    <string name="error_connection_refused">接続が拒否されました\nネットワークを確認するか、プロキシを無効にしてください</string>
+    <string name="error_timeout">ダウンロードがタイムアウトしました\nネットワークを確認してください</string>
+    <string name="error_dns_failed">DNS解決に失敗しました\nネットワークを確認してください</string>
+    <string name="error_host_unresolved">サーバーアドレスを解決できません\nネットワークを確認してください</string>
+    <string name="error_download_generic">ダウンロード失敗：%s</string>
+
+    <!-- Settings Dialog -->
+    <string name="settings_appearance">外観</string>
+    <string name="settings_theme">テーマ</string>
+    <string name="theme_system">システム</string>
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">ダーク</string>
+    <string name="theme_auto">自動</string>
+    <string name="settings_download">ダウンロード</string>
+    <string name="filename_format">ファイル名形式</string>
+    <string name="max_concurrent">最大同時ダウンロード数</string>
+    <string name="max_concurrent_desc">%d タスク</string>
+    <string name="download_record_check">ダウンロード記録チェック</string>
+    <string name="download_record_check_desc">ダウンロード済み動画を自動検出</string>
+    <string name="extra_content_download">追加コンテンツ</string>
+    <string name="extra_content_download_desc">カバー、弾幕、字幕のダウンロードを有効化</string>
+    <string name="smart_download">スマートダウンロード</string>
+    <string name="smart_download_desc">ローカルファイルに基づいてダウンロードボタンを自動制御</string>
+    <string name="settings_network">ネットワーク</string>
+    <string name="mobile_warning">モバイルデータ警告</string>
+    <string name="mobile_warning_desc">モバイルデータ使用時に警告</string>
+    <string name="settings_background">バックグラウンド</string>
+    <string name="background_download">バックグラウンドダウンロード</string>
+    <string name="background_download_desc">バックグラウンドで実行し、完了時に通知</string>
+    <string name="settings_account">アカウント</string>
+    <string name="cookie_status_set">設定済み</string>
+    <string name="cookie_status_not_set">未設定</string>
+    <string name="webview_ua_label">WebView UA</string>
+    <string name="webview_ua_pc">PCブラウザ</string>
+    <string name="webview_ua_mobile">モバイルブラウザ</string>
+    <string name="settings_other">その他</string>
+    <string name="cache_management">キャッシュ管理</string>
+    <string name="cache_size">現在のキャッシュ：%s</string>
+    <string name="clear_cache">キャッシュをクリア</string>
+    <string name="clear_cache_confirm">すべてのキャッシュファイルを削除しますか？</string>
+    <string name="filename_format_title">ファイル名形式</string>
+    <string name="filename_format_label">フォーマット</string>
+    <string name="filename_tokens_hint">使用可能なトークン（タップで追加）：</string>
+    <string name="filename_preview">プレビュー：</string>
+    <string name="filename_preview_title">サンプル動画タイトル</string>
+    <string name="filename_preview_author">サンプル作者</string>
+    <string name="filename_preview_part">第1話</string>
+
+    <!-- Filename tokens -->
+    <string name="token_title">動画タイトル</string>
+    <string name="token_author">作者</string>
+    <string name="token_bvid">BV ID</string>
+    <string name="token_avid">AV ID</string>
+    <string name="token_part_title">パートタイトル</string>
+    <string name="token_part_num">パート番号</string>
+    <string name="token_quality">画質</string>
+    <string name="token_date">日付</string>
+
+    <!-- Download Mode -->
+    <string name="download_mode">ダウンロードモード</string>
+    <string name="merge_download">結合ダウンロード</string>
+    <string name="merge_download_desc">音声と動画をMP4に結合</string>
+    <string name="separate_download_title">分離ダウンロード</string>
+    <string name="separate_download_desc">音声と動画をM4Sファイルとして保存</string>
+    <string name="select_content">コンテンツを選択</string>
+    <string name="video">動画</string>
+    <string name="audio">音声</string>
+    <string name="select_at_least_one">少なくとも1つ選択してください</string>
+    <string name="recommended">推奨</string>
+
+    <!-- Extra Content -->
+    <string name="extra_content">追加コンテンツ</string>
+    <string name="extra_content_hint">追加ダウンロードコンテンツを選択（フォルダとして保存）</string>
+    <string name="cover_image">カバー画像</string>
+    <string name="cover_image_desc">動画カバーをダウンロード</string>
+    <string name="danmaku_file">弾幕ファイル</string>
+    <string name="danmaku_file_desc">弾幕XMLファイルをダウンロード</string>
+    <string name="subtitle_file">字幕ファイル</string>
+    <string name="subtitle_sources_available">%d 件の字幕ソースが利用可能</string>
+    <string name="subtitle_file_desc">字幕JSONファイルをダウンロード</string>
+    <string name="select_subtitle_lang">字幕言語を選択</string>
+    <string name="select_at_least_one_lang">少なくとも1つの言語を選択</string>
+
+    <!-- Download Progress -->
+    <string name="downloading_task">ダウンロード中：%s</string>
+    <string name="progress_count">進捗：%1$d/%2$d</string>
+    <string name="label_video">動画</string>
+    <string name="label_audio">音声</string>
+    <string name="label_merge">結合</string>
+    <string name="label_cover">カバー</string>
+    <string name="label_danmaku">弾幕</string>
+    <string name="label_subtitle">字幕</string>
+
+    <!-- Network Warning -->
+    <string name="data_usage_warning">データ通信量の警告</string>
+    <string name="mobile_data_downloading">モバイルデータでダウンロード中です</string>
+    <string name="mobile_data_hint">高画質動画は大量のデータを消費する可能性があります。WiFi環境でのダウンロードを推奨します。</string>
+    <string name="dont_show_again">今後表示しない</string>
+    <string name="continue_download">ダウンロードを続行</string>
+
+    <!-- Permission -->
+    <string name="storage_permission_needed">ストレージ権限が必要です</string>
+    <string name="storage_permission_reason">ダウンロードした動画ファイルを保存するためにストレージ権限が必要です。</string>
+    <string name="storage_permission_hint">システムダイアログで「許可」をタップしてください</string>
+    <string name="grant_permission">許可する</string>
+    <string name="skip_permission">スキップ</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">ダウンロード通知</string>
+    <string name="notification_channel_desc">ダウンロードの進捗とステータスを表示</string>
+    <string name="notification_downloading">ダウンロード中</string>
+    <string name="notification_download_complete">ダウンロード完了</string>
+    <string name="notification_download_failed">ダウンロード失敗</string>
+    <string name="notification_permission_denied">通知権限が付与されていないため、完了時に通知できません</string>
+    <string name="storage_permission_limited">ストレージ権限が付与されていないため、ダウンロードが制限される可能性があります</string>
+    <string name="press_back_again">もう一度戻るを押すと終了</string>
+
+    <!-- Page Selection -->
+    <string name="select_collection">コレクションを選択（全%d話）</string>
+
+    <!-- Download Repository -->
+    <string name="status_exists">既存</string>
+    <string name="status_skipped">スキップ</string>
+    <string name="status_complete">完了</string>
+    <string name="downloading_video">動画をダウンロード中…</string>
+    <string name="downloading_audio">音声をダウンロード中…</string>
+    <string name="merging">結合中…</string>
+    <string name="downloading_cover">カバーをダウンロード中…</string>
+    <string name="cover_progress">カバー %d%%</string>
+    <string name="cover_complete">カバー完了</string>
+    <string name="downloading_danmaku">弾幕をダウンロード中…</string>
+    <string name="danmaku_decompressing">弾幕を解凍中…</string>
+    <string name="danmaku_complete">弾幕完了</string>
+    <string name="fetching_subtitle">字幕を取得中…</string>
+    <string name="no_subtitle">字幕なし</string>
+    <string name="no_matching_subtitle">一致する字幕なし</string>
+    <string name="subtitle_lang_complete">字幕 %s 完了</string>
+    <string name="subtitle_complete">字幕完了</string>
+
+    <!-- BiliApi -->
+    <string name="quality_8k">8K 超高画質</string>
+    <string name="quality_dolby">Dolby Vision</string>
+    <string name="quality_hdr">HDR</string>
+    <string name="quality_4k">4K 超高画質</string>
+    <string name="quality_1080p60">1080P 60fps</string>
+    <string name="quality_1080p_plus">1080P 高ビットレート</string>
+    <string name="quality_1080p">1080P HD</string>
+    <string name="quality_720p60">720P 60fps</string>
+    <string name="quality_720p">720P HD</string>
+    <string name="quality_480p">480P SD</string>
+    <string name="quality_360p">360P スムーズ</string>
+
+    <!-- BiliApi additional -->
+    <string name="error_unrecognized_video_id">認識できない動画ID形式：%s</string>
+    <string name="quality_8k_full">8K 超高画質</string>
+    <string name="quality_4k_full">4K 超高画質</string>
+    <string name="quality_1080p60_full">1080P 60fps</string>
+    <string name="quality_1080p_plus_full">1080P 高ビットレート</string>
+    <string name="quality_1080p_full">1080P HD</string>
+    <string name="quality_720p60_full">720P 60fps</string>
+    <string name="quality_720p_full">720P HD</string>
+    <string name="quality_480p_full">480P SD</string>
+    <string name="quality_360p_full">360P スムーズ</string>
+    <string name="unknown_title">不明なタイトル</string>
+    <string name="unknown_author">不明な作者</string>
+    <string name="unknown_part">不明</string>
+    <string name="episode_num">第%d話</string>
+    <string name="unknown_bangumi">不明なアニメ</string>
+    <string name="bangumi">アニメ</string>
+    <string name="video_file_incomplete">動画ファイル構造が不完全：ftypまたはmoovボックスが欠落</string>
+
+    <!-- SplashActivity -->
+    <string name="splash_app_name">Bili Download</string>
+    <string name="splash_app_desc">動画ダウンロードアシスタント</string>
+
+    <!-- SettingsRepository -->
+    <string name="token_desc_title">動画タイトル</string>
+    <string name="token_desc_author">作者</string>
+    <string name="token_desc_bvid">BV ID</string>
+    <string name="token_desc_avid">AV ID</string>
+    <string name="token_desc_part_title">パートタイトル</string>
+    <string name="token_desc_part_num">パート番号</string>
+    <string name="token_desc_quality">画質</string>
+    <string name="token_desc_date">ダウンロード日</string>
+
+    <!-- DownloadProgressCard -->
+    <string name="downloading_current">ダウンロード中：%s</string>
+    <string name="progress_display">進捗：%1$d/%2$d</string>
+
+    <!-- FileManagerDialog -->
+    <string name="downloaded_files">ダウンロード済みファイル（%d）</string>
+    <string name="sort">並べ替え</string>
+    <string name="sort_by_name">名前順</string>
+    <string name="sort_by_size">サイズ順</string>
+    <string name="sort_by_time">日時順</string>
+    <string name="sort_asc">昇順</string>
+    <string name="sort_desc">降順</string>
+    <string name="no_downloaded_files">ダウンロードファイルなし</string>
+    <string name="choose_app">アプリを選択</string>
+    <string name="open_file_failed">ファイルを開けませんでした：%s</string>
+    <string name="confirm_delete">削除の確認</string>
+    <string name="confirm_delete_msg">%s を削除しますか？</string>
+    <string name="delete">削除</string>
+    <string name="delete_failed">ファイルの削除に失敗しました</string>
+    <string name="downloaded">ダウンロード済み</string>
+
+    <!-- DownloadModeSelector -->
+    <string name="merge_download_full_desc">音声と動画をMP4ファイルに結合</string>
+    <string name="separate_download_full_desc">音声と動画をM4Sファイルとして保存</string>
+
+    <!-- MergeMethodSelector -->
+    <string name="native_merge_desc">ネイティブ結合、高い互換性</string>
+    <string name="separate_save_desc">動画と音声を別々のファイルとして保存</string>
+
+    <!-- InputCard -->
+    <string name="input_error_hint">リンクまたはIDを認識できません。入力を確認してください</string>
+    <string name="paste">貼り付け</string>
+
+    <!-- PageSelectionCard -->
+    <string name="select_parts">パートを選択（全%d個）</string>
+    <string name="switch_to_parts">パートに切替</string>
+    <string name="switch_to_collection">コレクションに切替</string>
+
+    <!-- QualitySelector -->
+    <string name="user_level_vip">プレミアム会員</string>
+    <string name="user_level_logged_in">ログイン済み</string>
+    <string name="user_level_guest">ゲスト</string>
+    <string name="quality_limit_guest">ゲストは最大480Pまで</string>
+    <string name="quality_limit_logged_in">一般ユーザーは最大1080Pまで</string>
+
+    <!-- Mp4Merger -->
+    <string name="learning_disclaimer">この動画は学習ツールでダウンロードされました。個人的な学習・研究目的のみに使用してください。オリジナルコンテンツクリエイターを応援してください。</string>
+
+    <!-- Permission Wizard -->
+    <string name="permission_wizard_step">(%1$d/%2$d)</string>
+    <string name="permission_notification_title">通知権限</string>
+    <string name="permission_notification_desc">ダウンロードの進捗と完了ステータスを表示するために通知を許可してください。</string>
+    <string name="permission_storage_title">ストレージ権限</string>
+    <string name="permission_storage_desc">ダウンロードした動画ファイルを保存するためにストレージ権限が必要です。</string>
+    <string name="permission_skip">スキップ</string>
+    <string name="permission_grant">許可する</string>
+
+    <!-- Agreement -->
+    <string name="agreement_scroll_hint">下までスクロールして同意</string>
+
+    <!-- Permission revoked -->
+    <string name="error_no_storage_permission">ストレージ権限が付与されていないため、ダウンロードできません</string>
+    <string name="storage_permission_revoked_title">ストレージ権限が必要です</string>
+    <string name="storage_permission_revoked_desc">ストレージ権限が取り消されました。この権限なしではダウンロードできません。通知権限は任意です。</string>
+    <string name="open_app_settings">アプリ設定を開く</string>
+    <string name="permission_revoked_dismiss">権限なしで続行</string>
+
+    <!-- WebView QR Login -->
+    <string name="scan_qr_to_login">QRコードでログイン</string>
+    <string name="scan_qr_hint">Bilibiliアプリで上のQRコードをスキャンしてください</string>
+    <string name="use_webview_instead">Webページでログイン</string>
+    <string name="qr_loading">QRコードを読み込み中…</string>
+
+    <!-- Codec Selector -->
+    <string name="codec_format">コーデック形式</string>
+    <string name="video_codec">動画コーデック</string>
+    <string name="audio_codec">音声コーデック</string>
+    <string name="codec_quality_count">%d 画質</string>
+    <string name="show_more_codecs">さらに%d件表示</string>
+</resources>

@@ -74,7 +74,8 @@ data class DownloadProgress(
 data class ExtraContent(
     val downloadCover: Boolean = false,
     val downloadDanmaku: Boolean = false,
-    val downloadSubtitle: Boolean = false
+    val downloadSubtitle: Boolean = false,
+    val selectedSubtitleLangs: Set<String> = emptySet()
 )
 
 enum class DownloadMode {
@@ -94,4 +95,16 @@ data class SubtitleInfo(
 data class DanmakuInfo(
     val cid: Long,
     val url: String
+)
+
+data class VideoCodecInfo(
+    val codecId: String,
+    val codecName: String,
+    val qualityCount: Int
+)
+
+data class AudioCodecInfo(
+    val id: Int,
+    val name: String,
+    val bandwidth: Long
 )

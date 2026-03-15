@@ -61,9 +61,9 @@ fun QualitySelector(
                     )
                     Text(
                         text = when (userLevel) {
-                            UserLevel.VIP -> "大会员"
-                            UserLevel.LOGGED_IN -> "已登录"
-                            UserLevel.GUEST -> "未登录"
+                            UserLevel.VIP -> stringResource(R.string.user_level_vip)
+                            UserLevel.LOGGED_IN -> stringResource(R.string.user_level_logged_in)
+                            UserLevel.GUEST -> stringResource(R.string.user_level_guest)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = when (userLevel) {
@@ -123,8 +123,8 @@ fun QualitySelector(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = when (userLevel) {
-                                    UserLevel.GUEST -> "未登录用户最高支持480P"
-                                    UserLevel.LOGGED_IN -> "普通用户最高支持1080P"
+                                    UserLevel.GUEST -> stringResource(R.string.quality_limit_guest)
+                                    UserLevel.LOGGED_IN -> stringResource(R.string.quality_limit_logged_in)
                                     else -> ""
                                 },
                                 style = MaterialTheme.typography.bodySmall,

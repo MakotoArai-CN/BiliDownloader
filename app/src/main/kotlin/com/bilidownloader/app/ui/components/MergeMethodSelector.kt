@@ -30,7 +30,7 @@ fun MergeMethodSelector(
             Spacer(modifier = Modifier.height(12.dp))
             MergeMethodItem(
                 title = stringResource(R.string.js_merge),
-                description = "原生直接合并，兼容性好",
+                description = stringResource(R.string.native_merge_desc),
                 isSelected = selectedMethod == "js_merge",
                 recommended = true,
                 onClick = { onMethodSelect("js_merge") }
@@ -38,7 +38,7 @@ fun MergeMethodSelector(
             Spacer(modifier = Modifier.height(8.dp))
             MergeMethodItem(
                 title = stringResource(R.string.separate_download),
-                description = "分别保存视频和音频文件",
+                description = stringResource(R.string.separate_save_desc),
                 isSelected = selectedMethod == "separate",
                 recommended = false,
                 onClick = { onMethodSelect("separate") }
@@ -92,7 +92,7 @@ private fun MergeMethodItem(
                             onClick = {},
                             label = {
                                 Text(
-                                    text = "推荐",
+                                    text = stringResource(R.string.recommended),
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             },

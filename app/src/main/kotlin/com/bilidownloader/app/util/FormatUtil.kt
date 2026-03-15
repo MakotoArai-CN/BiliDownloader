@@ -1,6 +1,7 @@
 package com.bilidownloader.app.util
 
 object FormatUtil {
+
     fun formatDuration(seconds: Long): String {
         val h = seconds / 3600
         val m = (seconds % 3600) / 60
@@ -21,6 +22,14 @@ object FormatUtil {
             bytes >= mb -> String.format("%.2f MB", bytes.toFloat() / mb)
             bytes >= kb -> String.format("%.2f KB", bytes.toFloat() / kb)
             else -> "$bytes B"
+        }
+    }
+
+    fun formatBitrate(bandwidth: Long): String {
+        val kbps = bandwidth / 1000
+        return when {
+            kbps >= 1000 -> String.format("%.1f Mbps", kbps / 1000.0)
+            else -> "${kbps} Kbps"
         }
     }
 }

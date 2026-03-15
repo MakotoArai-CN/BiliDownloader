@@ -16,10 +16,10 @@ class BiliApp : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 DOWNLOAD_CHANNEL_ID,
-                "下载通知",
+                getString(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "显示视频下载进度和状态"
+                description = getString(R.string.notification_channel_desc)
                 setShowBadge(false)
             }
 

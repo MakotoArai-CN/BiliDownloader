@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BiliDown</string>
+    <string name="paste_hint">粘贴 BV/EP 号或链接</string>
+    <string name="parse">解析</string>
+    <string name="download">下载</string>
+    <string name="settings">设置</string>
+    <string name="quality">画质</string>
+    <string name="download_path">下载路径</string>
+    <string name="cookie_settings">Cookie 设置</string>
+    <string name="login_bili">登录哔哩哔哩</string>
+    <string name="manual_cookie">手动输入 Cookie</string>
+    <string name="select_all">全选</string>
+    <string name="deselect_all">取消全选</string>
+    <string name="reverse_select">反选</string>
+    <string name="downloading">下载中</string>
+    <string name="download_complete">下载完成</string>
+    <string name="merge_method">合并方式</string>
+    <string name="js_merge">原生合并</string>
+    <string name="separate_download">分离下载</string>
+    <string name="parsing">解析中</string>
+    <string name="parse_error">解析错误</string>
+    <string name="download_error">下载错误</string>
+
+    <!-- Common -->
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="close">关闭</string>
+    <string name="about">关于</string>
+    <string name="version">版本</string>
+    <string name="save">保存</string>
+    <string name="done">完成</string>
+    <string name="back">返回</string>
+    <string name="reset">重置</string>
+    <string name="clear">清除</string>
+
+    <!-- Cookie -->
+    <string name="cookie_set">Cookie 已设置</string>
+    <string name="cookie_input_title">输入 Cookie</string>
+    <string name="cookie_input_hint">提示：打开浏览器，登录哔哩哔哩，按 F12 打开开发者工具，在 Network 标签中找到任意请求并复制 Cookie 值</string>
+
+    <!-- Agreement Dialog -->
+    <string name="agreement_title">使用协议与隐私政策</string>
+    <string name="accept">同意</string>
+    <string name="decline">拒绝</string>
+    <string name="welcome_title">欢迎使用 BiliDown</string>
+    <string name="welcome_message">请仔细阅读以下协议。使用本应用即表示您同意以下条款：</string>
+    <string name="agreement_confirm_hint">点击"同意"即表示您已阅读并同意以上所有条款</string>
+
+    <string name="agreement_section_1_title">一、使用条款</string>
+    <string name="agreement_section_1_content">1. 本应用仅供个人学习和研究使用，严禁用于商业用途。\n\n2.
+        下载的视频内容版权归原创作者所有，请尊重知识产权。\n\n3. 用户不得将下载的视频用于：\n - 搬运至其他平台\n - 商业用途或牟利\n - 侵犯他人权益\n -
+        其他违反法律法规的行为\n\n4. 本应用不对使用过程中产生的任何法律后果负责。\n\n5. 本应用保留随时修改本条款的权利。</string>
+
+    <string name="agreement_section_2_title">二、隐私政策</string>
+    <string name="agreement_section_2_content">1. 数据收集\n 本应用不会收集个人信息。所有操作均在本地完成。\n\n2. Cookie 使用\n
+        您提供的 Cookie 存储在您的设备本地，仅用于访问 Bilibili API。\n\n3. 存储权限\n 应用需要存储权限来保存下载的视频文件。\n\n4. 网络权限\n
+        应用需要网络权限来访问 Bilibili API 并下载内容。\n\n5. 数据安全\n 所有数据存储在您的本地设备上，不会上传至任何服务器。\n\n6. 第三方服务\n 本应用使用
+        Bilibili 的公共 API。请同时遵守 Bilibili 的服务条款。</string>
+
+    <string name="agreement_section_3_title">三、免责声明</string>
+    <string name="agreement_section_3_content">1. 本应用按"现状"提供，不附带任何保证。\n\n2. 使用本应用的任何风险由用户自行承担。\n\n3.
+        开发者不对任何直接或间接损失负责。\n\n4. 本应用仅供技术学习，请支持原创内容创作者。\n\n5. 如果您不同意这些条款，请立即停止使用本应用。</string>
+
+    <!-- MainScreen -->
+    <string name="app_title_full">哔哩哔哩视频下载</string>
+    <string name="app_subtitle">支持 BV、AV、EP、合集、分享链接</string>
+    <string name="file_manager">文件管理</string>
+    <string name="file_exists_hint">文件已存在，点击查看</string>
+
+    <!-- Splash -->
+    <string name="splash_title">BiliDown</string>
+    <string name="splash_subtitle">视频下载助手</string>
+
+    <!-- WebView Login -->
+    <string name="login_bilibili">登录哔哩哔哩</string>
+    <string name="logged_in_as">已登录：%s</string>
+    <string name="login_success">登录成功</string>
+    <string name="login_success_cookie_saved">登录成功，Cookie 已保存</string>
+    <string name="login_success_detected">已成功检测到哔哩哔哩登录。</string>
+    <string name="login_save_hint">点击右上角"完成"按钮保存登录状态</string>
+    <string name="login_user">用户：%s</string>
+    <string name="login_save_prompt">点击"保存并返回"将登录状态保存到应用。</string>
+    <string name="save_and_return">保存并返回</string>
+    <string name="continue_browsing">继续浏览</string>
+
+    <!-- DownloadViewModel errors -->
+    <string name="error_occurred">错误：%s</string>
+    <string name="error_empty_input">请输入视频链接或 ID</string>
+    <string name="error_invalid_input">输入文本过长或包含无效内容\n请输入有效的 Bilibili 链接或视频 ID</string>
+    <string name="error_cannot_identify">无法识别视频 ID\n支持的格式：\nBV、AV、EP、SS 号\n或完整的 Bilibili 链接</string>
+    <string name="error_parse_failed">解析失败：%s</string>
+    <string name="error_invalid_video_id">视频 ID 无效，请重新解析</string>
+    <string name="error_select_page">请至少选择一个分P或合集</string>
+    <string name="error_separate_select">分离模式下请至少选择视频或音频</string>
+    <string name="error_download_failed">下载失败</string>
+    <string name="error_unknown">未知错误</string>
+    <string name="preparing_download">准备下载…</string>
+    <string name="error_dns_local">网络错误：DNS 解析到本地地址\n可能是 VPN/代理/AdGuard 导致\n请尝试关闭相关软件</string>
+    <string name="error_connection_refused">连接被拒绝\n请检查网络或关闭代理</string>
+    <string name="error_timeout">下载超时\n请检查网络</string>
+    <string name="error_dns_failed">DNS 解析失败\n请检查网络</string>
+    <string name="error_host_unresolved">无法解析服务器地址\n请检查网络</string>
+    <string name="error_download_generic">下载失败：%s</string>
+
+    <!-- Settings Dialog -->
+    <string name="settings_appearance">外观</string>
+    <string name="settings_theme">主题</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="theme_auto">自动</string>
+    <string name="settings_download">下载</string>
+    <string name="filename_format">文件名格式</string>
+    <string name="max_concurrent">最大同时下载数</string>
+    <string name="max_concurrent_desc">%d 个任务</string>
+    <string name="download_record_check">下载记录检测</string>
+    <string name="download_record_check_desc">自动检测已下载的视频</string>
+    <string name="extra_content_download">附加内容下载</string>
+    <string name="extra_content_download_desc">启用封面、弹幕、字幕下载</string>
+    <string name="smart_download">智能下载检测</string>
+    <string name="smart_download_desc">根据本地文件自动控制下载按钮</string>
+    <string name="settings_network">网络</string>
+    <string name="mobile_warning">移动数据警告</string>
+    <string name="mobile_warning_desc">使用移动数据下载时发出警告</string>
+    <string name="settings_background">后台</string>
+    <string name="background_download">后台下载</string>
+    <string name="background_download_desc">保持后台运行，完成后通知</string>
+    <string name="settings_account">账户</string>
+    <string name="cookie_status_set">已设置</string>
+    <string name="cookie_status_not_set">未设置</string>
+    <string name="webview_ua_label">WebView UA</string>
+    <string name="webview_ua_pc">PC 浏览器</string>
+    <string name="webview_ua_mobile">手机浏览器</string>
+    <string name="settings_other">其他</string>
+    <string name="cache_management">缓存管理</string>
+    <string name="cache_size">当前缓存：%s</string>
+    <string name="clear_cache">清除缓存</string>
+    <string name="clear_cache_confirm">确定要清除所有缓存文件吗？</string>
+    <string name="filename_format_title">文件名格式</string>
+    <string name="filename_format_label">格式</string>
+    <string name="filename_tokens_hint">可用标记（点击添加）：</string>
+    <string name="filename_preview">预览：</string>
+    <string name="filename_preview_title">示例视频标题</string>
+    <string name="filename_preview_author">示例作者</string>
+    <string name="filename_preview_part">第1集</string>
+
+    <!-- Filename tokens -->
+    <string name="token_title">视频标题</string>
+    <string name="token_author">作者</string>
+    <string name="token_bvid">BV 号</string>
+    <string name="token_avid">AV 号</string>
+    <string name="token_part_title">分P标题</string>
+    <string name="token_part_num">分P序号</string>
+    <string name="token_quality">画质</string>
+    <string name="token_date">日期</string>
+
+    <!-- Download Mode -->
+    <string name="download_mode">下载模式</string>
+    <string name="merge_download">合并下载</string>
+    <string name="merge_download_desc">合并音视频为 MP4</string>
+    <string name="separate_download_title">分离下载</string>
+    <string name="separate_download_desc">音视频分别保存为 M4S 文件</string>
+    <string name="select_content">选择内容</string>
+    <string name="video">视频</string>
+    <string name="audio">音频</string>
+    <string name="select_at_least_one">至少选择一项</string>
+    <string name="recommended">推荐</string>
+
+    <!-- Extra Content -->
+    <string name="extra_content">附加内容</string>
+    <string name="extra_content_hint">选择附加下载内容，将以文件夹形式存储</string>
+    <string name="cover_image">封面图片</string>
+    <string name="cover_image_desc">下载视频封面</string>
+    <string name="danmaku_file">弹幕文件</string>
+    <string name="danmaku_file_desc">下载弹幕 XML 文件</string>
+    <string name="subtitle_file">字幕文件</string>
+    <string name="subtitle_sources_available">%d 个字幕源可用</string>
+    <string name="subtitle_file_desc">下载字幕 JSON 文件</string>
+    <string name="select_subtitle_lang">选择字幕语言</string>
+    <string name="select_at_least_one_lang">至少选择一种语言</string>
+
+    <!-- Download Progress -->
+    <string name="downloading_task">正在下载：%s</string>
+    <string name="progress_count">进度：%1$d/%2$d</string>
+    <string name="label_video">视频</string>
+    <string name="label_audio">音频</string>
+    <string name="label_merge">合并</string>
+    <string name="label_cover">封面</string>
+    <string name="label_danmaku">弹幕</string>
+    <string name="label_subtitle">字幕</string>
+
+    <!-- Network Warning -->
+    <string name="data_usage_warning">流量提醒</string>
+    <string name="mobile_data_downloading">您正在使用移动数据下载</string>
+    <string name="mobile_data_hint">高画质视频可能会消耗大量流量。建议在 WiFi 环境下下载。</string>
+    <string name="dont_show_again">不再提示</string>
+    <string name="continue_download">继续下载</string>
+
+    <!-- Permission -->
+    <string name="storage_permission_needed">需要存储权限</string>
+    <string name="storage_permission_reason">需要存储权限来保存下载的视频文件。</string>
+    <string name="storage_permission_hint">请在系统弹窗中点击"允许"</string>
+    <string name="grant_permission">授权</string>
+    <string name="skip_permission">跳过</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">下载通知</string>
+    <string name="notification_channel_desc">显示下载进度和状态</string>
+    <string name="notification_downloading">下载中</string>
+    <string name="notification_download_complete">下载完成</string>
+    <string name="notification_download_failed">下载失败</string>
+    <string name="notification_permission_denied">未授予通知权限，无法在完成时通知</string>
+    <string name="storage_permission_limited">未授予存储权限，下载可能受限</string>
+    <string name="press_back_again">再按一次返回退出</string>
+
+    <!-- Page Selection -->
+    <string name="select_collection">选择合集（共 %d 集）</string>
+
+    <!-- Download Repository progress texts -->
+    <string name="status_exists">已存在</string>
+    <string name="status_skipped">已跳过</string>
+    <string name="status_complete">完成</string>
+    <string name="downloading_video">正在下载视频…</string>
+    <string name="downloading_audio">正在下载音频…</string>
+    <string name="merging">正在合并…</string>
+    <string name="downloading_cover">正在下载封面…</string>
+    <string name="cover_progress">封面 %d%%</string>
+    <string name="cover_complete">封面完成</string>
+    <string name="downloading_danmaku">正在下载弹幕…</string>
+    <string name="danmaku_decompressing">正在解压弹幕…</string>
+    <string name="danmaku_complete">弹幕完成</string>
+    <string name="fetching_subtitle">正在获取字幕…</string>
+    <string name="no_subtitle">无字幕</string>
+    <string name="no_matching_subtitle">无匹配字幕</string>
+    <string name="subtitle_lang_complete">字幕 %s 完成</string>
+    <string name="subtitle_complete">字幕完成</string>
+
+    <!-- BiliApi -->
+    <string name="quality_8k">8K 超高清</string>
+    <string name="quality_dolby">杜比视界</string>
+    <string name="quality_hdr">HDR 真彩</string>
+    <string name="quality_4k">4K 超清</string>
+    <string name="quality_1080p60">1080P 60帧</string>
+    <string name="quality_1080p_plus">1080P 高码率</string>
+    <string name="quality_1080p">1080P 高清</string>
+    <string name="quality_720p60">720P 60帧</string>
+    <string name="quality_720p">720P 高清</string>
+    <string name="quality_480p">480P 清晰</string>
+    <string name="quality_360p">360P 流畅</string>
+
+    <!-- BiliApi additional -->
+    <string name="error_unrecognized_video_id">无法识别的视频ID格式: %s</string>
+    <string name="quality_8k_full">8K 超高清</string>
+    <string name="quality_4k_full">4K 超清</string>
+    <string name="quality_1080p60_full">1080P 60帧</string>
+    <string name="quality_1080p_plus_full">1080P 高码率</string>
+    <string name="quality_1080p_full">1080P 高清</string>
+    <string name="quality_720p60_full">720P 60帧</string>
+    <string name="quality_720p_full">720P 高清</string>
+    <string name="quality_480p_full">480P 清晰</string>
+    <string name="quality_360p_full">360P 流畅</string>
+    <string name="unknown_title">未知标题</string>
+    <string name="unknown_author">未知UP主</string>
+    <string name="unknown_part">未知</string>
+    <string name="episode_num">第%d集</string>
+    <string name="unknown_bangumi">未知番剧</string>
+    <string name="bangumi">番剧</string>
+    <string name="video_file_incomplete">视频文件结构不完整：缺少 ftyp 或 moov box</string>
+
+    <!-- Codec Selector -->
+    <string name="codec_format">编码格式</string>
+    <string name="video_codec">视频编码</string>
+    <string name="audio_codec">音频编码</string>
+    <string name="codec_quality_count">%d 个画质</string>
+    <string name="show_more_codecs">展开 %d 个</string>
+
+    <!-- SplashActivity -->
+    <string name="splash_app_name">Bili 下载</string>
+    <string name="splash_app_desc">视频下载助手</string>
+
+    <!-- SettingsRepository filename tokens -->
+    <string name="token_desc_title">视频标题</string>
+    <string name="token_desc_author">UP主/作者</string>
+    <string name="token_desc_bvid">BV号</string>
+    <string name="token_desc_avid">AV号</string>
+    <string name="token_desc_part_title">分P标题</string>
+    <string name="token_desc_part_num">分P序号</string>
+    <string name="token_desc_quality">清晰度</string>
+    <string name="token_desc_date">下载日期</string>
+
+    <!-- DownloadProgressCard -->
+    <string name="downloading_current">正在下载: %s</string>
+    <string name="progress_display">进度: %1$d/%2$d</string>
+
+    <!-- FileManagerDialog -->
+    <string name="downloaded_files">已下载文件 (%d)</string>
+    <string name="sort">排序</string>
+    <string name="sort_by_name">按名称</string>
+    <string name="sort_by_size">按大小</string>
+    <string name="sort_by_time">按时间</string>
+    <string name="sort_asc">升序</string>
+    <string name="sort_desc">降序</string>
+    <string name="no_downloaded_files">暂无下载文件</string>
+    <string name="choose_app">选择应用打开</string>
+    <string name="open_file_failed">打开文件失败: %s</string>
+    <string name="confirm_delete">确认删除</string>
+    <string name="confirm_delete_msg">确定要删除 %s 吗？</string>
+    <string name="delete">删除</string>
+    <string name="delete_failed">删除文件失败</string>
+    <string name="downloaded">已下载</string>
+
+    <!-- DownloadModeSelector additional -->
+    <string name="merge_download_full_desc">音视频合并为MP4文件</string>
+    <string name="separate_download_full_desc">音视频分别保存为M4S文件</string>
+
+    <!-- MergeMethodSelector -->
+    <string name="native_merge_desc">原生直接合并，兼容性好</string>
+    <string name="separate_save_desc">分别保存视频和音频文件</string>
+
+    <!-- InputCard -->
+    <string name="input_error_hint">无法识别链接或ID，请检查输入</string>
+    <string name="paste">粘贴</string>
+
+    <!-- PageSelectionCard -->
+    <string name="select_parts">选择分P (共 %d 个)</string>
+    <string name="switch_to_parts">切换到分P</string>
+    <string name="switch_to_collection">切换到合集</string>
+
+    <!-- QualitySelector -->
+    <string name="user_level_vip">大会员</string>
+    <string name="user_level_logged_in">已登录</string>
+    <string name="user_level_guest">未登录</string>
+    <string name="quality_limit_guest">未登录用户最高支持480P</string>
+    <string name="quality_limit_logged_in">普通用户最高支持1080P</string>
+
+    <!-- Mp4Merger -->
+    <string name="learning_disclaimer">本视频通过学习工具下载，仅供个人学习研究使用，请支持正版内容创作者。</string>
+
+    <!-- Permission Wizard -->
+    <string name="permission_wizard_step">(%1$d/%2$d)</string>
+    <string name="permission_notification_title">通知权限</string>
+    <string name="permission_notification_desc">允许通知以显示下载进度和完成状态。</string>
+    <string name="permission_storage_title">存储权限</string>
+    <string name="permission_storage_desc">需要存储权限以保存下载的视频文件。</string>
+    <string name="permission_skip">跳过</string>
+    <string name="permission_grant">授权</string>
+
+    <!-- Agreement -->
+    <string name="agreement_scroll_hint">滑动到底部以接受</string>
+
+    <!-- Permission revoked -->
+    <string name="error_no_storage_permission">未授予存储权限，无法下载</string>
+    <string name="storage_permission_revoked_title">需要存储权限</string>
+    <string name="storage_permission_revoked_desc">存储权限已被撤销。没有存储权限将无法下载文件。通知权限为可选项。</string>
+    <string name="open_app_settings">打开应用设置</string>
+    <string name="permission_revoked_dismiss">暂不授权继续使用</string>
+
+    <!-- WebView QR Login -->
+    <string name="scan_qr_to_login">扫码登录</string>
+    <string name="scan_qr_hint">打开哔哩哔哩APP扫描上方二维码</string>
+    <string name="use_webview_instead">使用网页登录</string>
+    <string name="qr_loading">正在加载二维码…</string>
+</resources>

@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.bilidownloader.app.BiliApp
+import com.bilidownloader.app.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -53,20 +54,24 @@ class SettingsRepository {
         val BACKGROUND_DOWNLOAD_ENABLED = booleanPreferencesKey("background_download_enabled")
         val DOWNLOAD_RECORD_CHECK_ENABLED = booleanPreferencesKey("download_record_check_enabled")
         val EXTRA_CONTENT_ENABLED = booleanPreferencesKey("extra_content_enabled")
+        val SMART_DOWNLOAD_ENABLED = booleanPreferencesKey("smart_download_enabled")
     }
 
     companion object {
         const val DEFAULT_FILENAME_FORMAT = "{title}"
-        val FILENAME_TOKENS = listOf(
-            "{title}" to "视频标题",
-            "{author}" to "UP主/作者",
-            "{bvid}" to "BV号",
-            "{avid}" to "AV号",
-            "{part_title}" to "分P标题",
-            "{part_num}" to "分P序号",
-            "{quality}" to "清晰度",
-            "{date}" to "下载日期"
-        )
+        val FILENAME_TOKENS: List<Pair<String, String>> by lazy {
+            val ctx = BiliApp.instance
+            listOf(
+                "{title}" to ctx.getString(R.string.token_desc_title),
+                "{author}" to ctx.getString(R.string.token_desc_author),
+                "{bvid}" to ctx.getString(R.string.token_desc_bvid),
+                "{avid}" to ctx.getString(R.string.token_desc_avid),
+                "{part_title}" to ctx.getString(R.string.token_desc_part_title),
+                "{part_num}" to ctx.getString(R.string.token_desc_part_num),
+                "{quality}" to ctx.getString(R.string.token_desc_quality),
+                "{date}" to ctx.getString(R.string.token_desc_date)
+            )
+        }
     }
 
     fun getDownloadPath(): Flow<String> = context.dataStore.data.map { prefs ->
@@ -186,6 +191,16 @@ class SettingsRepository {
     suspend fun setExtraContentEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[Keys.EXTRA_CONTENT_ENABLED] = enabled
+        }
+    }
+
+    fun getSmartDownloadEnabled(): Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.SMART_DOWNLOAD_ENABLED] ?: true
+    }
+
+    suspend fun setSmartDownloadEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.SMART_DOWNLOAD_ENABLED] = enabled
         }
     }
 }

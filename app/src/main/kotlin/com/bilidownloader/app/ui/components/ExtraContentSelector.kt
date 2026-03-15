@@ -8,15 +8,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.bilidownloader.app.R
 import com.bilidownloader.app.data.model.ExtraContent
+import com.bilidownloader.app.data.model.SubtitleInfo
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ExtraContentSelector(
     extraContent: ExtraContent,
     onExtraContentChange: (ExtraContent) -> Unit,
-    hasSubtitles: Boolean = true
+    hasSubtitles: Boolean = true,
+    availableSubtitles: List<SubtitleInfo> = emptyList()
 ) {
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -30,7 +34,7 @@ fun ExtraContentSelector(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "附加内容",
+                    text = stringResource(R.string.extra_content),
                     style = MaterialTheme.typography.titleSmall
                 )
                 Icon(
@@ -44,7 +48,7 @@ fun ExtraContentSelector(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "选择要下载的附加内容，将以文件夹形式存储",
+                text = stringResource(R.string.extra_content_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -53,8 +57,8 @@ fun ExtraContentSelector(
 
             ExtraContentItem(
                 icon = Icons.Default.Image,
-                title = "封面图片",
-                description = "下载视频封面",
+                title = stringResource(R.string.cover_image),
+                description = stringResource(R.string.cover_image_desc),
                 isSelected = extraContent.downloadCover,
                 onToggle = {
                     onExtraContentChange(extraContent.copy(downloadCover = !extraContent.downloadCover))
@@ -65,31 +69,108 @@ fun ExtraContentSelector(
 
             ExtraContentItem(
                 icon = Icons.Default.Comment,
-                title = "弹幕文件",
-                description = "下载弹幕XML文件",
+                title = stringResource(R.string.danmaku_file),
+                description = stringResource(R.string.danmaku_file_desc),
                 isSelected = extraContent.downloadDanmaku,
                 onToggle = {
                     onExtraContentChange(extraContent.copy(downloadDanmaku = !extraContent.downloadDanmaku))
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            if (hasSubtitles) {
+                Spacer(modifier = Modifier.height(8.dp))
 
-            ExtraContentItem(
-                icon = Icons.Default.Subtitles,
-                title = "字幕文件",
-                description = if (hasSubtitles) "下载字幕JSON文件" else "该视频暂无字幕",
-                isSelected = extraContent.downloadSubtitle,
-                enabled = hasSubtitles,
-                onToggle = {
-                    onExtraContentChange(extraContent.copy(downloadSubtitle = !extraContent.downloadSubtitle))
+                ExtraContentItem(
+                    icon = Icons.Default.Subtitles,
+                    title = stringResource(R.string.subtitle_file),
+                    description = if (availableSubtitles.size > 1) {
+                        stringResource(R.string.subtitle_sources_available, availableSubtitles.size)
+                    } else {
+                        stringResource(R.string.subtitle_file_desc)
+                    },
+                    isSelected = extraContent.downloadSubtitle,
+                    onToggle = {
+                        val newDownload = !extraContent.downloadSubtitle
+                        if (newDownload && extraContent.selectedSubtitleLangs.isEmpty()) {
+                            // Auto-select all subtitles when first enabling
+                            onExtraContentChange(extraContent.copy(
+                                downloadSubtitle = true,
+                                selectedSubtitleLangs = availableSubtitles.map { it.lan }.toSet()
+                            ))
+                        } else {
+                            onExtraContentChange(extraContent.copy(downloadSubtitle = newDownload))
+                        }
+                    }
+                )
+
+                // Subtitle language selection chips when enabled and multiple sources available
+                AnimatedVisibility(
+                    visible = extraContent.downloadSubtitle && availableSubtitles.size > 1,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.select_subtitle_lang),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            availableSubtitles.forEach { subtitle ->
+                                val isSelected = extraContent.selectedSubtitleLangs.contains(subtitle.lan)
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = {
+                                        val newSet = extraContent.selectedSubtitleLangs.toMutableSet()
+                                        if (isSelected) {
+                                            newSet.remove(subtitle.lan)
+                                        } else {
+                                            newSet.add(subtitle.lan)
+                                        }
+                                        onExtraContentChange(extraContent.copy(
+                                            selectedSubtitleLangs = newSet,
+                                            downloadSubtitle = newSet.isNotEmpty()
+                                        ))
+                                    },
+                                    label = { Text(subtitle.lanDoc) },
+                                    leadingIcon = if (isSelected) {
+                                        {
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                    } else null
+                                )
+                            }
+                        }
+
+                        if (extraContent.selectedSubtitleLangs.isEmpty()) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(R.string.select_at_least_one_lang),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
                 }
-            )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun ExtraContentItem(
     icon: androidx.compose.ui.graphics.vector.ImageVector,

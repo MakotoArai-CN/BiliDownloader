@@ -22,7 +22,8 @@ class SettingsViewModel : ViewModel() {
         repository.getNetworkWarningEnabled(),
         repository.getBackgroundDownloadEnabled(),
         repository.getDownloadRecordCheckEnabled(),
-        repository.getExtraContentEnabled()
+        repository.getExtraContentEnabled(),
+        repository.getSmartDownloadEnabled()
     ) { values ->
         Settings(
             downloadPath = values[0] as String,
@@ -35,7 +36,8 @@ class SettingsViewModel : ViewModel() {
             networkWarningEnabled = values[7] as Boolean,
             backgroundDownloadEnabled = values[8] as Boolean,
             downloadRecordCheckEnabled = values[9] as Boolean,
-            extraContentEnabled = values[10] as Boolean
+            extraContentEnabled = values[10] as Boolean,
+            smartDownloadEnabled = values[11] as Boolean
         )
     }.stateIn(
         scope = viewModelScope,
@@ -102,6 +104,12 @@ class SettingsViewModel : ViewModel() {
             repository.setExtraContentEnabled(enabled)
         }
     }
+
+    fun updateSmartDownloadEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.setSmartDownloadEnabled(enabled)
+        }
+    }
 }
 
 data class Settings(
@@ -115,5 +123,6 @@ data class Settings(
     val networkWarningEnabled: Boolean = true,
     val backgroundDownloadEnabled: Boolean = true,
     val downloadRecordCheckEnabled: Boolean = true,
-    val extraContentEnabled: Boolean = false
+    val extraContentEnabled: Boolean = false,
+    val smartDownloadEnabled: Boolean = true
 )

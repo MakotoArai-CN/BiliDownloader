@@ -1,53 +1,390 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Bili下载</string>
-    <string name="paste_hint">粘贴 BV 号、EP 号或链接</string>
-    <string name="parse">解析</string>
-    <string name="download">下载</string>
-    <string name="settings">设置</string>
-    <string name="quality">清晰度</string>
-    <string name="download_path">下载路径</string>
-    <string name="cookie_settings">Cookie 设置</string>
-    <string name="login_bili">登录哔哩哔哩</string>
-    <string name="manual_cookie">手动输入 Cookie</string>
-    <string name="select_all">全选</string>
-    <string name="deselect_all">取消全选</string>
-    <string name="reverse_select">反选</string>
-    <string name="downloading">下载中</string>
-    <string name="download_complete">下载完成</string>
-    <string name="merge_method">合并方式</string>
-    <string name="js_merge">原生合并</string>
-    <string name="separate_download">分离下载</string>
-    <string name="parsing">解析中</string>
-    <string name="parse_error">解析失败</string>
-    <string name="download_error">下载失败</string>
+    <string name="app_name">BiliDown</string>
+    <string name="paste_hint">Paste BV/EP ID or link</string>
+    <string name="parse">Parse</string>
+    <string name="download">Download</string>
+    <string name="settings">Settings</string>
+    <string name="quality">Quality</string>
+    <string name="download_path">Download Path</string>
+    <string name="cookie_settings">Cookie Settings</string>
+    <string name="login_bili">Login to Bilibili</string>
+    <string name="manual_cookie">Enter Cookie Manually</string>
+    <string name="select_all">Select All</string>
+    <string name="deselect_all">Deselect All</string>
+    <string name="reverse_select">Invert</string>
+    <string name="downloading">Downloading</string>
+    <string name="download_complete">Download Complete</string>
+    <string name="merge_method">Merge Method</string>
+    <string name="js_merge">Native Merge</string>
+    <string name="separate_download">Separate Download</string>
+    <string name="parsing">Parsing</string>
+    <string name="parse_error">Parse Error</string>
+    <string name="download_error">Download Error</string>
 
     <!-- Common -->
-    <string name="confirm">确定</string>
-    <string name="cancel">取消</string>
-    <string name="close">关闭</string>
-    <string name="about">关于</string>
-    <string name="version">版本</string>
+    <string name="confirm">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="about">About</string>
+    <string name="version">Version</string>
+    <string name="save">Save</string>
+    <string name="done">Done</string>
+    <string name="back">Back</string>
+    <string name="reset">Reset</string>
+    <string name="clear">Clear</string>
 
     <!-- Cookie -->
-    <string name="cookie_set">Cookie 已设置</string>
-    <string name="cookie_input_title">输入 Cookie</string>
-    <string name="cookie_input_hint">提示：打开浏览器登录哔哩哔哩，按F12打开开发者工具，在Network标签中找到任意请求，复制Cookie值</string>
+    <string name="cookie_set">Cookie has been set</string>
+    <string name="cookie_input_title">Enter Cookie</string>
+    <string name="cookie_input_hint">Tip: Open browser, login to Bilibili, press F12 to open
+        DevTools, find any request in Network tab and copy Cookie value</string>
 
     <!-- Agreement Dialog -->
-    <string name="agreement_title">用户协议与隐私政策</string>
-    <string name="accept">同意</string>
-    <string name="decline">不同意</string>
-    <string name="welcome_title">欢迎使用 Bili 下载</string>
-    <string name="welcome_message">请仔细阅读以下协议，使用本应用即表示您同意以下条款：</string>
-    <string name="agreement_confirm_hint">点击"同意"即表示您已阅读并同意以上所有条款</string>
+    <string name="agreement_title">Terms of Service &amp; Privacy Policy</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="welcome_title">Welcome to BiliDown</string>
+    <string name="welcome_message">Please read the following agreement carefully. By using this app,
+        you agree to the following terms:</string>
+    <string name="agreement_confirm_hint">By clicking \"Accept\", you have read and agreed to all
+        terms above</string>
 
-    <string name="agreement_section_1_title">一、用户协议</string>
-    <string name="agreement_section_1_content">1. 本应用仅供个人学习研究使用，严禁用于商业用途。\n\n2. 用户下载的视频内容版权归原作者所有，请尊重知识产权。\n\n3. 用户不得将下载的视频用于以下用途：\n   - 二次上传到其他平台\n   - 商业使用或牟利\n   - 侵犯他人合法权益\n   - 违反国家法律法规的其他行为\n\n4. 本应用不对用户使用本应用产生的任何法律后果负责。\n\n5. 本应用有权随时修改本协议，修改后的协议将在应用内公布。</string>
+    <string name="agreement_section_1_title">1. Terms of Use</string>
+    <string name="agreement_section_1_content">1. This app is for personal study and research only.
+        Commercial use is strictly prohibited.\n\n2. The copyright of downloaded video content
+        belongs to the original creators. Please respect intellectual property.\n\n3. Users must not
+        use downloaded videos for:\n - Re-uploading to other platforms\n - Commercial use or
+        profit\n - Infringing upon others\' rights\n - Other violations of law\n\n4. This app is not
+        responsible for any legal consequences from usage.\n\n5. This app reserves the right to
+        modify these terms at any time.</string>
 
-    <string name="agreement_section_2_title">二、隐私政策</string>
-    <string name="agreement_section_2_content">1. 信息收集\n   本应用不会收集您的个人信息，所有操作均在本地完成。\n\n2. Cookie 使用\n   您主动提供的 Cookie 信息仅存储在本地设备，用于访问哔哩哔哩 API。\n\n3. 存储权限\n   应用需要存储权限以保存下载的视频文件到您的设备。\n\n4. 网络权限\n   应用需要网络权限以访问哔哩哔哩 API 和下载视频内容。\n\n5. 数据安全\n   所有数据均存储在您的本地设备，我们不会上传到任何服务器。\n\n6. 第三方服务\n   本应用使用哔哩哔哩的公开 API，请同时遵守哔哩哔哩的用户协议。</string>
+    <string name="agreement_section_2_title">2. Privacy Policy</string>
+    <string name="agreement_section_2_content">1. Data Collection\n This app does not collect
+        personal information. All operations are performed locally.\n\n2. Cookie Usage\n Cookies you
+        provide are stored locally on your device for accessing Bilibili API.\n\n3. Storage
+        Permission\n The app requires storage permission to save downloaded video files.\n\n4.
+        Network Permission\n The app requires network permission to access Bilibili API and download
+        content.\n\n5. Data Security\n All data is stored on your local device. Nothing is uploaded
+        to any server.\n\n6. Third-party Services\n This app uses Bilibili\'s public API. Please
+        also comply with Bilibili\'s terms of service.</string>
 
-    <string name="agreement_section_3_title">三、免责声明</string>
-    <string name="agreement_section_3_content">1. 本应用按"现状"提供，不提供任何形式的保证。\n\n2. 使用本应用产生的任何风险由用户自行承担。\n\n3. 本应用开发者不对因使用本应用导致的任何直接或间接损失负责。\n\n4. 本应用仅为技术学习交流，请支持正版内容。\n\n5. 如果您不同意以上条款，请立即停止使用本应用。</string>
+    <string name="agreement_section_3_title">3. Disclaimer</string>
+    <string name="agreement_section_3_content">1. This app is provided \"as is\" without any
+        warranty.\n\n2. Any risks from using this app are borne by the user.\n\n3. The developer is
+        not responsible for any direct or indirect losses.\n\n4. This app is for technical learning
+        only. Please support original content creators.\n\n5. If you do not agree to these terms,
+        please stop using this app immediately.</string>
+
+    <!-- MainScreen -->
+    <string name="app_title_full">Bilibili Video Download</string>
+    <string name="app_subtitle">Supports BV, AV, EP, collections, share links</string>
+    <string name="file_manager">File Manager</string>
+    <string name="file_exists_hint">File exists, tap to view</string>
+
+    <!-- Splash -->
+    <string name="splash_title">BiliDown</string>
+    <string name="splash_subtitle">Video Download Assistant</string>
+
+    <!-- WebView Login -->
+    <string name="login_bilibili">Login to Bilibili</string>
+    <string name="logged_in_as">Logged in: %s</string>
+    <string name="login_success">Login Successful</string>
+    <string name="login_success_cookie_saved">Login successful, Cookie saved</string>
+    <string name="login_success_detected">Successfully detected Bilibili login.</string>
+    <string name="login_save_hint">Click the \"Done\" button in the top right to save login state</string>
+    <string name="login_user">User: %s</string>
+    <string name="login_save_prompt">Click \"Save &amp; Return\" to save login state to the app.</string>
+    <string name="save_and_return">Save &amp; Return</string>
+    <string name="continue_browsing">Continue Browsing</string>
+
+    <!-- DownloadViewModel errors -->
+    <string name="error_occurred">Error: %s</string>
+    <string name="error_empty_input">Please enter a video link or ID</string>
+    <string name="error_invalid_input">Input text is too long or contains invalid content\nPlease
+        enter a valid Bilibili link or video ID</string>
+    <string name="error_cannot_identify">Cannot identify video ID\nSupported formats:\nBV, AV, EP,
+        SS numbers\nor full Bilibili link</string>
+    <string name="error_parse_failed">Parse failed: %s</string>
+    <string name="error_invalid_video_id">Invalid video ID, please re-parse</string>
+    <string name="error_select_page">Please select at least one part or collection</string>
+    <string name="error_separate_select">Please select at least video or audio in separate mode</string>
+    <string name="error_download_failed">Download failed</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="preparing_download">Preparing download…</string>
+    <string name="error_dns_local">Network error: DNS resolved to local address\nMay be caused by
+        VPN/proxy/AdGuard\nPlease try disabling them</string>
+    <string name="error_connection_refused">Connection refused\nPlease check network or disable
+        proxy</string>
+    <string name="error_timeout">Download timed out\nPlease check network</string>
+    <string name="error_dns_failed">DNS resolution failed\nPlease check network</string>
+    <string name="error_host_unresolved">Cannot resolve server address\nPlease check network</string>
+    <string name="error_download_generic">Download failed: %s</string>
+
+    <!-- Settings Dialog -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_auto">Auto</string>
+    <string name="settings_download">Download</string>
+    <string name="filename_format">Filename Format</string>
+    <string name="max_concurrent">Max Concurrent Downloads</string>
+    <string name="max_concurrent_desc">%d tasks</string>
+    <string name="download_record_check">Download Record Check</string>
+    <string name="download_record_check_desc">Auto-detect downloaded videos</string>
+    <string name="extra_content_download">Extra Content Download</string>
+    <string name="extra_content_download_desc">Enable cover, danmaku, subtitle download</string>
+    <string name="smart_download">Smart Download Detection</string>
+    <string name="smart_download_desc">Auto-control download button based on local files</string>
+    <string name="settings_network">Network</string>
+    <string name="mobile_warning">Mobile Data Warning</string>
+    <string name="mobile_warning_desc">Warn when downloading on mobile data</string>
+    <string name="settings_background">Background</string>
+    <string name="background_download">Background Download</string>
+    <string name="background_download_desc">Keep running in background, notify when done</string>
+    <string name="settings_account">Account</string>
+    <string name="cookie_status_set">Set</string>
+    <string name="cookie_status_not_set">Not set</string>
+    <string name="webview_ua_label">WebView UA</string>
+    <string name="webview_ua_pc">PC Browser</string>
+    <string name="webview_ua_mobile">Mobile Browser</string>
+    <string name="settings_other">Other</string>
+    <string name="cache_management">Cache Management</string>
+    <string name="cache_size">Current cache: %s</string>
+    <string name="clear_cache">Clear Cache</string>
+    <string name="clear_cache_confirm">Are you sure to clear all cache files?</string>
+    <string name="filename_format_title">Filename Format</string>
+    <string name="filename_format_label">Format</string>
+    <string name="filename_tokens_hint">Available tokens (tap to add):</string>
+    <string name="filename_preview">Preview:</string>
+    <string name="filename_preview_title">Sample Video Title</string>
+    <string name="filename_preview_author">Sample Author</string>
+    <string name="filename_preview_part">Episode 1</string>
+
+    <!-- Filename tokens -->
+    <string name="token_title">Video Title</string>
+    <string name="token_author">Author</string>
+    <string name="token_bvid">BV ID</string>
+    <string name="token_avid">AV ID</string>
+    <string name="token_part_title">Part Title</string>
+    <string name="token_part_num">Part Number</string>
+    <string name="token_quality">Quality</string>
+    <string name="token_date">Date</string>
+
+    <!-- Download Mode -->
+    <string name="download_mode">Download Mode</string>
+    <string name="merge_download">Merge Download</string>
+    <string name="merge_download_desc">Merge audio &amp; video into MP4</string>
+    <string name="separate_download_title">Separate Download</string>
+    <string name="separate_download_desc">Save audio &amp; video as M4S files</string>
+    <string name="select_content">Select Content</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="select_at_least_one">Select at least one</string>
+    <string name="recommended">Recommended</string>
+
+    <!-- Extra Content -->
+    <string name="extra_content">Extra Content</string>
+    <string name="extra_content_hint">Select extra content to download, stored as folder</string>
+    <string name="cover_image">Cover Image</string>
+    <string name="cover_image_desc">Download video cover</string>
+    <string name="danmaku_file">Danmaku File</string>
+    <string name="danmaku_file_desc">Download danmaku XML file</string>
+    <string name="subtitle_file">Subtitle File</string>
+    <string name="subtitle_sources_available">%d subtitle sources available</string>
+    <string name="subtitle_file_desc">Download subtitle JSON file</string>
+    <string name="select_subtitle_lang">Select Subtitle Language</string>
+    <string name="select_at_least_one_lang">Select at least one language</string>
+
+    <!-- Download Progress -->
+    <string name="downloading_task">Downloading: %s</string>
+    <string name="progress_count">Progress: %1$d/%2$d</string>
+    <string name="label_video">Video</string>
+    <string name="label_audio">Audio</string>
+    <string name="label_merge">Merge</string>
+    <string name="label_cover">Cover</string>
+    <string name="label_danmaku">Danmaku</string>
+    <string name="label_subtitle">Subtitle</string>
+
+    <!-- Network Warning -->
+    <string name="data_usage_warning">Data Usage Warning</string>
+    <string name="mobile_data_downloading">You are downloading on mobile data</string>
+    <string name="mobile_data_hint">HD videos may consume a lot of data. Downloading on WiFi is
+        recommended.</string>
+    <string name="dont_show_again">Don\'t show again</string>
+    <string name="continue_download">Continue Download</string>
+
+    <!-- Permission -->
+    <string name="storage_permission_needed">Storage Permission Needed</string>
+    <string name="storage_permission_reason">Storage permission is needed to save downloaded video
+        files.</string>
+    <string name="storage_permission_hint">Please tap \"Allow\" in the system dialog</string>
+    <string name="grant_permission">Grant</string>
+    <string name="skip_permission">Skip</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">Download Notifications</string>
+    <string name="notification_channel_desc">Show download progress and status</string>
+    <string name="notification_downloading">Downloading</string>
+    <string name="notification_download_complete">Download Complete</string>
+    <string name="notification_download_failed">Download Failed</string>
+    <string name="notification_permission_denied">Notification permission not granted, cannot notify
+        on completion</string>
+    <string name="storage_permission_limited">Storage permission not granted, download may be
+        limited</string>
+    <string name="press_back_again">Press back again to exit</string>
+
+    <!-- Page Selection -->
+    <string name="select_collection">Select collection (%d episodes total)</string>
+
+    <!-- Download Repository progress texts -->
+    <string name="status_exists">Exists</string>
+    <string name="status_skipped">Skipped</string>
+    <string name="status_complete">Complete</string>
+    <string name="downloading_video">Downloading video…</string>
+    <string name="downloading_audio">Downloading audio…</string>
+    <string name="merging">Merging…</string>
+    <string name="downloading_cover">Downloading cover…</string>
+    <string name="cover_progress">Cover %d%%</string>
+    <string name="cover_complete">Cover complete</string>
+    <string name="downloading_danmaku">Downloading danmaku…</string>
+    <string name="danmaku_decompressing">Decompressing danmaku…</string>
+    <string name="danmaku_complete">Danmaku complete</string>
+    <string name="fetching_subtitle">Fetching subtitles…</string>
+    <string name="no_subtitle">No subtitles</string>
+    <string name="no_matching_subtitle">No matching subtitles</string>
+    <string name="subtitle_lang_complete">Subtitle %s complete</string>
+    <string name="subtitle_complete">Subtitles complete</string>
+
+    <!-- BiliApi -->
+    <string name="quality_8k">8K Ultra HD</string>
+    <string name="quality_dolby">Dolby Vision</string>
+    <string name="quality_hdr">HDR</string>
+    <string name="quality_4k">4K Ultra HD</string>
+    <string name="quality_1080p60">1080P 60fps</string>
+    <string name="quality_1080p_plus">1080P High Bitrate</string>
+    <string name="quality_1080p">1080P HD</string>
+    <string name="quality_720p60">720P 60fps</string>
+    <string name="quality_720p">720P HD</string>
+    <string name="quality_480p">480P SD</string>
+    <string name="quality_360p">360P Smooth</string>
+
+    <!-- Codec Selector -->
+    <string name="codec_format">Codec Format</string>
+    <string name="video_codec">Video Codec</string>
+    <string name="audio_codec">Audio Codec</string>
+    <string name="codec_quality_count">%d qualities</string>
+    <string name="show_more_codecs">Show %d more</string>
+
+    <!-- BiliApi additional -->
+    <string name="error_unrecognized_video_id">Unrecognized video ID format: %s</string>
+    <string name="quality_8k_full">8K Ultra HD</string>
+    <string name="quality_4k_full">4K Ultra HD</string>
+    <string name="quality_1080p60_full">1080P 60fps</string>
+    <string name="quality_1080p_plus_full">1080P High Bitrate</string>
+    <string name="quality_1080p_full">1080P HD</string>
+    <string name="quality_720p60_full">720P 60fps</string>
+    <string name="quality_720p_full">720P HD</string>
+    <string name="quality_480p_full">480P SD</string>
+    <string name="quality_360p_full">360P Smooth</string>
+    <string name="unknown_title">Unknown Title</string>
+    <string name="unknown_author">Unknown Author</string>
+    <string name="unknown_part">Unknown</string>
+    <string name="episode_num">Episode %d</string>
+    <string name="unknown_bangumi">Unknown Bangumi</string>
+    <string name="bangumi">Bangumi</string>
+    <string name="video_file_incomplete">Video file structure incomplete: missing ftyp or moov box</string>
+
+    <!-- SplashActivity -->
+    <string name="splash_app_name">Bili Download</string>
+    <string name="splash_app_desc">Video Download Assistant</string>
+
+    <!-- SettingsRepository filename tokens -->
+    <string name="token_desc_title">Video Title</string>
+    <string name="token_desc_author">Author</string>
+    <string name="token_desc_bvid">BV ID</string>
+    <string name="token_desc_avid">AV ID</string>
+    <string name="token_desc_part_title">Part Title</string>
+    <string name="token_desc_part_num">Part Number</string>
+    <string name="token_desc_quality">Quality</string>
+    <string name="token_desc_date">Download Date</string>
+
+    <!-- DownloadProgressCard -->
+    <string name="downloading_current">Downloading: %s</string>
+    <string name="progress_display">Progress: %1$d/%2$d</string>
+
+    <!-- FileManagerDialog -->
+    <string name="downloaded_files">Downloaded Files (%d)</string>
+    <string name="sort">Sort</string>
+    <string name="sort_by_name">By Name</string>
+    <string name="sort_by_size">By Size</string>
+    <string name="sort_by_time">By Time</string>
+    <string name="sort_asc">Ascending</string>
+    <string name="sort_desc">Descending</string>
+    <string name="no_downloaded_files">No downloaded files</string>
+    <string name="choose_app">Choose App</string>
+    <string name="open_file_failed">Failed to open file: %s</string>
+    <string name="confirm_delete">Confirm Delete</string>
+    <string name="confirm_delete_msg">Are you sure to delete %s?</string>
+    <string name="delete">Delete</string>
+    <string name="delete_failed">Failed to delete file</string>
+    <string name="downloaded">Downloaded</string>
+
+    <!-- DownloadModeSelector additional -->
+    <string name="merge_download_full_desc">Merge audio and video into MP4</string>
+    <string name="separate_download_full_desc">Save audio and video as M4S files</string>
+
+    <!-- MergeMethodSelector -->
+    <string name="native_merge_desc">Native merge, good compatibility</string>
+    <string name="separate_save_desc">Save video and audio as separate files</string>
+
+    <!-- InputCard -->
+    <string name="input_error_hint">Cannot recognize link or ID, please check input</string>
+    <string name="paste">Paste</string>
+
+    <!-- PageSelectionCard -->
+    <string name="select_parts">Select Parts (%d total)</string>
+    <string name="switch_to_parts">Switch to Parts</string>
+    <string name="switch_to_collection">Switch to Collection</string>
+
+    <!-- QualitySelector -->
+    <string name="user_level_vip">VIP</string>
+    <string name="user_level_logged_in">Logged In</string>
+    <string name="user_level_guest">Guest</string>
+    <string name="quality_limit_guest">Guest users limited to 480P max</string>
+    <string name="quality_limit_logged_in">Regular users limited to 1080P max</string>
+
+    <!-- Mp4Merger -->
+    <string name="learning_disclaimer">This video was downloaded via a study tool, for personal
+        study and research only. Please support original content creators.</string>
+
+    <!-- Permission Wizard -->
+    <string name="permission_wizard_step">(%1$d/%2$d)</string>
+    <string name="permission_notification_title">Notification Permission</string>
+    <string name="permission_notification_desc">Allow notifications to show download progress and
+        completion status.</string>
+    <string name="permission_storage_title">Storage Permission</string>
+    <string name="permission_storage_desc">Storage permission is needed to save downloaded video
+        files.</string>
+    <string name="permission_skip">Skip</string>
+    <string name="permission_grant">Grant</string>
+
+    <!-- Agreement -->
+    <string name="agreement_scroll_hint">Scroll down to accept</string>
+
+    <!-- Permission revoked -->
+    <string name="error_no_storage_permission">Storage permission not granted, cannot download</string>
+    <string name="storage_permission_revoked_title">Storage Permission Required</string>
+    <string name="storage_permission_revoked_desc">Storage permission has been revoked. Downloads
+        cannot proceed without this permission. Notification permission is optional.</string>
+    <string name="open_app_settings">Open App Settings</string>
+    <string name="permission_revoked_dismiss">Continue without permission</string>
+
+    <!-- WebView QR Login -->
+    <string name="scan_qr_to_login">Scan QR Code to Login</string>
+    <string name="scan_qr_hint">Open Bilibili app and scan the QR code above</string>
+    <string name="use_webview_instead">Use web page login instead</string>
+    <string name="qr_loading">Loading QR code…</string>
 </resources>

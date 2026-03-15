@@ -55,7 +55,7 @@ fun InputCard(
                 supportingText = {
                     if (!isInputEmpty && !isValidInput) {
                         Text(
-                            text = "无法识别链接或ID，请检查输入",
+                            text = stringResource(R.string.input_error_hint),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -80,7 +80,7 @@ fun InputCard(
                             ) {
                                 Icon(
                                     Icons.Default.ContentPaste,
-                                    contentDescription = "粘贴",
+                                    contentDescription = stringResource(R.string.paste),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -94,7 +94,7 @@ fun InputCard(
                             ) {
                                 Icon(
                                     Icons.Default.Clear,
-                                    contentDescription = "清空",
+                                    contentDescription = stringResource(R.string.clear),
                                     tint = MaterialTheme.colorScheme.error,
                                     modifier = Modifier.rotate(rotationAngle)
                                 )

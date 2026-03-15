@@ -4,8 +4,11 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import com.bilidownloader.app.BiliApp
 import com.bilidownloader.app.R
 import com.bilidownloader.app.ui.MainActivity
@@ -23,22 +26,22 @@ class DownloadService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START_DOWNLOAD -> {
-                val title = intent.getStringExtra(EXTRA_TITLE) ?: "视频下载"
+                val title = intent.getStringExtra(EXTRA_TITLE) ?: getString(R.string.notification_downloading)
                 startForegroundDownload(title)
             }
             ACTION_UPDATE_PROGRESS -> {
                 val progress = intent.getIntExtra(EXTRA_PROGRESS, 0)
-                val title = intent.getStringExtra(EXTRA_TITLE) ?: "下载中"
+                val title = intent.getStringExtra(EXTRA_TITLE) ?: getString(R.string.notification_downloading)
                 updateProgress(title, progress)
             }
             ACTION_COMPLETE -> {
-                val title = intent.getStringExtra(EXTRA_TITLE) ?: "下载完成"
+                val title = intent.getStringExtra(EXTRA_TITLE) ?: getString(R.string.notification_download_complete)
                 showCompletionNotification(title)
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
             ACTION_ERROR -> {
-                val error = intent.getStringExtra(EXTRA_ERROR) ?: "下载失败"
+                val error = intent.getStringExtra(EXTRA_ERROR) ?: getString(R.string.notification_download_failed)
                 showErrorNotification(error)
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
@@ -52,7 +55,17 @@ class DownloadService : Service() {
             .setOngoing(true)
             .build()
 
-        startForeground(notificationId, notification)
+        // Android 14+ requires explicit foreground service type
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ServiceCompat.startForeground(
+                this,
+                notificationId,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            startForeground(notificationId, notification)
+        }
     }
 
     private fun updateProgress(title: String, progress: Int) {
@@ -76,7 +89,7 @@ class DownloadService : Service() {
 
         val notification = NotificationCompat.Builder(this, BiliApp.DOWNLOAD_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentTitle("下载完成")
+            .setContentTitle(getString(R.string.notification_download_complete))
             .setContentText(title)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
@@ -89,7 +102,7 @@ class DownloadService : Service() {
     private fun showErrorNotification(error: String) {
         val notification = NotificationCompat.Builder(this, BiliApp.DOWNLOAD_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_notify_error)
-            .setContentTitle("下载失败")
+            .setContentTitle(getString(R.string.notification_download_failed))
             .setContentText(error)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -101,7 +114,7 @@ class DownloadService : Service() {
     private fun createNotificationBuilder(title: String, progress: Int): NotificationCompat.Builder {
         return NotificationCompat.Builder(this, BiliApp.DOWNLOAD_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download)
-            .setContentTitle("正在下载")
+            .setContentTitle(getString(R.string.notification_downloading))
             .setContentText(title)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setProgress(100, progress, progress == 0)

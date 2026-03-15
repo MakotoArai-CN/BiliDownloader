@@ -7,8 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.bilidownloader.app.R
 
 @Composable
 fun NetworkWarningDialog(
@@ -30,7 +32,7 @@ fun NetworkWarningDialog(
         },
         title = {
             Text(
-                text = "流量使用提醒",
+                text = stringResource(R.string.data_usage_warning),
                 textAlign = TextAlign.Center
             )
         },
@@ -39,13 +41,13 @@ fun NetworkWarningDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "您正在使用移动网络下载视频",
+                    text = stringResource(R.string.mobile_data_downloading),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "高清视频可能消耗大量流量，建议在WiFi环境下下载。",
+                    text = stringResource(R.string.mobile_data_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -59,7 +61,7 @@ fun NetworkWarningDialog(
                         onCheckedChange = { dontShowAgain = it }
                     )
                     Text(
-                        text = "不再提示",
+                        text = stringResource(R.string.dont_show_again),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -74,12 +76,12 @@ fun NetworkWarningDialog(
                     onConfirm()
                 }
             ) {
-                Text("继续下载")
+                Text(stringResource(R.string.continue_download))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

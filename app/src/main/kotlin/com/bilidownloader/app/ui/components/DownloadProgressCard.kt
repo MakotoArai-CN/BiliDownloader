@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.bilidownloader.app.R
 import com.bilidownloader.app.data.model.DownloadProgress
 
 @Composable
@@ -19,7 +21,7 @@ fun DownloadProgressCard(
         ) {
             if (progress.currentTaskName.isNotEmpty()) {
                 Text(
-                    text = "正在下载: ${progress.currentTaskName}",
+                    text = stringResource(R.string.downloading_current, progress.currentTaskName),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -28,7 +30,7 @@ fun DownloadProgressCard(
 
             if (progress.totalCount > 0) {
                 Text(
-                    text = "进度: ${progress.currentIndex}/${progress.totalCount}",
+                    text = stringResource(R.string.progress_display, progress.currentIndex, progress.totalCount),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -36,7 +38,7 @@ fun DownloadProgressCard(
             }
 
             ProgressRow(
-                label = "视频",
+                label = stringResource(R.string.label_video),
                 progress = progress.videoProgress.coerceIn(0f, 1f),
                 text = progress.videoText
             )
@@ -44,7 +46,7 @@ fun DownloadProgressCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             ProgressRow(
-                label = "音频",
+                label = stringResource(R.string.label_audio),
                 progress = progress.audioProgress.coerceIn(0f, 1f),
                 text = progress.audioText
             )
@@ -57,7 +59,7 @@ fun DownloadProgressCard(
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
                     ProgressRow(
-                        label = "合并",
+                        label = stringResource(R.string.label_merge),
                         progress = progress.mergeProgress.coerceIn(0f, 1f),
                         text = progress.mergeText
                     )
@@ -72,7 +74,7 @@ fun DownloadProgressCard(
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
                     ProgressRow(
-                        label = "封面",
+                        label = stringResource(R.string.label_cover),
                         progress = progress.coverProgress.coerceIn(0f, 1f),
                         text = progress.coverText
                     )
@@ -87,7 +89,7 @@ fun DownloadProgressCard(
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
                     ProgressRow(
-                        label = "弹幕",
+                        label = stringResource(R.string.label_danmaku),
                         progress = progress.danmakuProgress.coerceIn(0f, 1f),
                         text = progress.danmakuText
                     )
@@ -102,7 +104,7 @@ fun DownloadProgressCard(
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
                     ProgressRow(
-                        label = "字幕",
+                        label = stringResource(R.string.label_subtitle),
                         progress = progress.subtitleProgress.coerceIn(0f, 1f),
                         text = progress.subtitleText
                     )

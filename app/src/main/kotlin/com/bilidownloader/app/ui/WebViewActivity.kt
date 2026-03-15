@@ -1,6 +1,9 @@
 package com.bilidownloader.app.ui
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
@@ -10,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,17 +21,27 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
+import com.bilidownloader.app.R
 import com.bilidownloader.app.data.repository.SettingsRepository
 import com.bilidownloader.app.data.repository.ThemeMode
 import com.bilidownloader.app.data.repository.WebViewUA
 import com.bilidownloader.app.ui.theme.BiliDownloaderTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.util.concurrent.TimeUnit
 
 class WebViewActivity : ComponentActivity() {
 
@@ -55,7 +69,7 @@ class WebViewActivity : ComponentActivity() {
                                 settingsRepository.setCookie(cookie)
                                 Toast.makeText(
                                                 this@WebViewActivity,
-                                                "登录成功，Cookie 已保存",
+                                                getString(R.string.login_success_cookie_saved),
                                                 Toast.LENGTH_SHORT
                                         )
                                         .show()
@@ -92,6 +106,9 @@ fun WebViewLoginScreen(
     var loginUserName by remember { mutableStateOf("") }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var currentCookie by remember { mutableStateOf("") }
+    val isMobileUA = webViewUA == WebViewUA.MOBILE
+    var qrCodeUrl by remember { mutableStateOf<String?>(null) }
+    var showNativeOverlay by remember { mutableStateOf(false) }
 
     val userAgent =
             remember(webViewUA) {
@@ -114,10 +131,10 @@ fun WebViewLoginScreen(
                 TopAppBar(
                         title = {
                             Column {
-                                Text("登录哔哩哔哩")
+                                Text(stringResource(R.string.login_bilibili))
                                 if (isLoggedIn && loginUserName.isNotEmpty()) {
                                     Text(
-                                            text = "已登录: $loginUserName",
+                                            text = stringResource(R.string.logged_in_as, loginUserName),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.primary
                                     )
@@ -126,7 +143,7 @@ fun WebViewLoginScreen(
                         },
                         navigationIcon = {
                             IconButton(onClick = onBack) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                                Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                             }
                         },
                         actions = {
@@ -155,7 +172,7 @@ fun WebViewLoginScreen(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                        text = if (isLoggedIn) "完成" else "保存",
+                                        text = if (isLoggedIn) stringResource(R.string.done) else stringResource(R.string.save),
                                         color =
                                                 if (isLoggedIn) MaterialTheme.colorScheme.primary
                                                 else MaterialTheme.colorScheme.onSurface
@@ -192,12 +209,12 @@ fun WebViewLoginScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                        text = "登录成功",
+                                        text = stringResource(R.string.login_success),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                                 Text(
-                                        text = "点击右上角「完成」按钮保存登录状态",
+                                        text = stringResource(R.string.login_save_hint),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -215,7 +232,7 @@ fun WebViewLoginScreen(
                                                     containerColor =
                                                             MaterialTheme.colorScheme.primary
                                             )
-                            ) { Text("完成") }
+                            ) { Text(stringResource(R.string.done)) }
                         }
                     }
                 }
@@ -236,7 +253,6 @@ fun WebViewLoginScreen(
                                 settings.apply {
                                     javaScriptEnabled = true
                                     domStorageEnabled = true
-                                    databaseEnabled = true
                                     setSupportZoom(true)
                                     builtInZoomControls = true
                                     displayZoomControls = false
@@ -265,6 +281,18 @@ fun WebViewLoginScreen(
                                                 super.onPageFinished(view, url)
                                                 currentUrl = url ?: ""
                                                 checkLoginStatus()
+
+                                                // Extract QR code for mobile UA
+                                                if (isMobileUA && view != null) {
+                                                    view.postDelayed({
+                                                        extractQRCode(view) { extractedUrl ->
+                                                            if (extractedUrl != null) {
+                                                                qrCodeUrl = extractedUrl
+                                                                showNativeOverlay = true
+                                                            }
+                                                        }
+                                                    }, 1500)
+                                                }
                                             }
                                         }
 
@@ -284,16 +312,38 @@ fun WebViewLoginScreen(
                                             isLoggedIn = true
                                             loginUserName = userName
                                             currentCookie = cookie
+                                            showNativeOverlay = false
                                             Log.d(
                                                     "WebViewActivity",
                                                     "Login detected! User: $userName"
                                             )
                                         }
                                     }
+                                    // Re-extract QR code for mobile UA
+                                    if (isMobileUA && !isLoggedIn) {
+                                        extractQRCode(webView) { extractedUrl ->
+                                            if (extractedUrl != null && extractedUrl != qrCodeUrl) {
+                                                qrCodeUrl = extractedUrl
+                                                showNativeOverlay = true
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         },
                         modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // Native QR code overlay for mobile UA
+            AnimatedVisibility(
+                visible = showNativeOverlay && isMobileUA && !isLoggedIn && qrCodeUrl != null,
+                enter = fadeIn() + slideInVertically { it / 2 },
+                exit = fadeOut() + slideOutVertically { it / 2 }
+            ) {
+                NativeLoginOverlay(
+                    qrCodeUrl = qrCodeUrl,
+                    onDismiss = { showNativeOverlay = false }
                 )
             }
         }
@@ -310,20 +360,20 @@ fun WebViewLoginScreen(
                             modifier = Modifier.size(48.dp)
                     )
                 },
-                title = { Text("登录成功") },
+                title = { Text(stringResource(R.string.login_success)) },
                 text = {
                     Column {
-                        Text("检测到您已成功登录哔哩哔哩账号。")
+                        Text(stringResource(R.string.login_success_detected))
                         if (loginUserName.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                    text = "用户: $loginUserName",
+                                    text = stringResource(R.string.login_user, loginUserName),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary
                             )
                         }
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("点击「保存并返回」将登录状态保存到应用中。")
+                        Text(stringResource(R.string.login_save_prompt))
                     }
                 },
                 confirmButton = {
@@ -335,10 +385,10 @@ fun WebViewLoginScreen(
                                         cookieManager.getCookie("https://www.bilibili.com") ?: ""
                                 onSaveCookie(cookie)
                             }
-                    ) { Text("保存并返回") }
+                    ) { Text(stringResource(R.string.save_and_return)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showSuccessDialog = false }) { Text("继续浏览") }
+                    TextButton(onClick = { showSuccessDialog = false }) { Text(stringResource(R.string.continue_browsing)) }
                 }
         )
     }
@@ -380,5 +430,193 @@ private fun checkLoginStatus() {
         Log.d("WebViewActivity", "Has bili_jct: ${cookie.contains("bili_jct")}")
     } catch (e: Exception) {
         Log.e("WebViewActivity", "Error checking login", e)
+    }
+}
+
+private fun extractQRCode(webView: WebView, callback: (String?) -> Unit) {
+    val js = """
+        (function() {
+            var img = document.querySelector('.login-scan-box img')
+                   || document.querySelector('[class*="qrcode"] img')
+                   || document.querySelector('img[src*="qrcode"]')
+                   || document.querySelector('.qr-image img')
+                   || document.querySelector('img[class*="qr"]');
+            if (img && img.src) {
+                return img.src;
+            }
+            var canvas = document.querySelector('.login-scan-box canvas')
+                      || document.querySelector('[class*="qrcode"] canvas')
+                      || document.querySelector('canvas');
+            if (canvas) {
+                try { return canvas.toDataURL('image/png'); } catch(e) {}
+            }
+            var allImgs = document.querySelectorAll('img');
+            for (var i = 0; i < allImgs.length; i++) {
+                var src = allImgs[i].src || '';
+                if (src.indexOf('qrcode') >= 0 || src.indexOf('qr') >= 0) {
+                    return src;
+                }
+                var w = allImgs[i].naturalWidth || allImgs[i].width;
+                var h = allImgs[i].naturalHeight || allImgs[i].height;
+                if (w > 80 && h > 80 && Math.abs(w - h) < 20 && src.startsWith('data:image')) {
+                    return src;
+                }
+            }
+            return null;
+        })()
+    """.trimIndent()
+
+    webView.evaluateJavascript(js) { result ->
+        val url = result?.removeSurrounding("\"")?.takeIf { it != "null" && it.isNotEmpty() }
+        callback(url)
+    }
+}
+
+@Composable
+private fun NativeLoginOverlay(
+    qrCodeUrl: String?,
+    onDismiss: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.scan_qr_to_login),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (qrCodeUrl != null) {
+                QRCodeImage(
+                    url = qrCodeUrl,
+                    modifier = Modifier.size(240.dp)
+                )
+            } else {
+                Box(
+                    modifier = Modifier.size(240.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.qr_loading),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.scan_qr_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.use_webview_instead))
+            }
+        }
+    }
+}
+
+@Composable
+private fun QRCodeImage(url: String, modifier: Modifier = Modifier) {
+    if (url.startsWith("data:image")) {
+        val bitmap = remember(url) {
+            try {
+                val base64Data = url.substringAfter("base64,")
+                val bytes = Base64.decode(base64Data, Base64.DEFAULT)
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            } catch (e: Exception) {
+                Log.e("QRCodeImage", "Failed to decode base64 image", e)
+                null
+            }
+        }
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "QR Code",
+                modifier = modifier,
+                contentScale = ContentScale.Fit
+            )
+        } else {
+            QRCodePlaceholder(modifier)
+        }
+    } else {
+        var bitmap by remember(url) { mutableStateOf<Bitmap?>(null) }
+        var loading by remember(url) { mutableStateOf(true) }
+
+        LaunchedEffect(url) {
+            loading = true
+            bitmap = withContext(Dispatchers.IO) {
+                try {
+                    val client = OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .readTimeout(10, TimeUnit.SECONDS)
+                        .build()
+                    val request = Request.Builder().url(url).build()
+                    val response = client.newCall(request).execute()
+                    val bytes = response.body?.bytes()
+                    response.close()
+                    bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+                } catch (e: Exception) {
+                    Log.e("QRCodeImage", "Failed to load QR image from URL", e)
+                    null
+                }
+            }
+            loading = false
+        }
+
+        if (loading) {
+            Box(modifier = modifier, contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(modifier = Modifier.size(32.dp))
+            }
+        } else if (bitmap != null) {
+            Image(
+                bitmap = bitmap!!.asImageBitmap(),
+                contentDescription = "QR Code",
+                modifier = modifier,
+                contentScale = ContentScale.Fit
+            )
+        } else {
+            QRCodePlaceholder(modifier)
+        }
+    }
+}
+
+@Composable
+private fun QRCodePlaceholder(modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Icon(
+            Icons.Default.QrCode2,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.outline
+        )
     }
 }

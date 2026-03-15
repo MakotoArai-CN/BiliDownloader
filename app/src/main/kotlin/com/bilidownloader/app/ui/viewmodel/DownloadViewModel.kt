@@ -1,22 +1,33 @@
 package com.bilidownloader.app.ui.viewmodel
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bilidownloader.app.BiliApp
+import com.bilidownloader.app.R
 import com.bilidownloader.app.data.database.DownloadDatabase
 import com.bilidownloader.app.data.downloader.WebViewDownloader
 import com.bilidownloader.app.data.model.*
+import com.bilidownloader.app.data.network.BiliApi
 import com.bilidownloader.app.data.repository.BiliRepository
 import com.bilidownloader.app.data.repository.DownloadRepository
 import com.bilidownloader.app.data.repository.SettingsRepository
 import com.bilidownloader.app.util.*
+import android.content.Intent
+import com.bilidownloader.app.service.DownloadService
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.URLDecoder
 
 class DownloadViewModel : ViewModel() {
+
     private val biliRepo = BiliRepository()
     private val settingsRepo = SettingsRepository()
 
@@ -30,7 +41,7 @@ class DownloadViewModel : ViewModel() {
                 isParsing = false,
                 isDownloading = false,
                 downloadProgress = null,
-                errorMessage = "发生错误: ${throwable.message}"
+                errorMessage = BiliApp.instance.getString(R.string.error_occurred, throwable.message ?: "")
             )
         }
     }
@@ -41,16 +52,36 @@ class DownloadViewModel : ViewModel() {
                 settingsRepo.getNetworkWarningEnabled(),
                 settingsRepo.getExtraContentEnabled(),
                 settingsRepo.getDownloadRecordCheckEnabled(),
-                settingsRepo.getMaxConcurrentDownloads()
-            ) { networkWarning, extraContent, recordCheck, maxConcurrent ->
+                settingsRepo.getMaxConcurrentDownloads(),
+                settingsRepo.getSmartDownloadEnabled()
+            ) { values ->
+                val networkWarning = values[0] as Boolean
+                val extraContent = values[1] as Boolean
+                val recordCheck = values[2] as Boolean
+                val maxConcurrent = values[3] as Int
+                val smartDownload = values[4] as Boolean
+
+                val prevSmartDownload = _uiState.value.smartDownloadEnabled
+
                 _uiState.update {
                     it.copy(
                         networkWarningEnabled = networkWarning,
                         extraContentEnabled = extraContent,
-                        downloadRecordCheckEnabled = recordCheck
+                        downloadRecordCheckEnabled = recordCheck,
+                        smartDownloadEnabled = smartDownload
                     )
                 }
+
                 DownloadQueueManager.setMaxConcurrent(maxConcurrent)
+
+                if (prevSmartDownload != smartDownload) {
+                    val state = _uiState.value
+                    if (!smartDownload) {
+                        _uiState.update { it.copy(showFileManagerHint = false) }
+                    } else if (state.videoInfo != null && state.resolvedVideoId.isNotEmpty()) {
+                        checkLocalFilesForPages(state.resolvedVideoId, state.videoInfo)
+                    }
+                }
             }.collect()
         }
     }
@@ -66,6 +97,7 @@ class DownloadViewModel : ViewModel() {
     fun parseVideo(context: Context) {
         viewModelScope.launch(exceptionHandler) {
             _uiState.update { it.copy(isParsing = true, errorMessage = null) }
+
             try {
                 var input = _uiState.value.inputText.trim()
                 Log.d("DownloadViewModel", "Original input: $input")
@@ -74,7 +106,7 @@ class DownloadViewModel : ViewModel() {
                     _uiState.update {
                         it.copy(
                             isParsing = false,
-                            errorMessage = "请输入视频链接或ID"
+                            errorMessage = BiliApp.instance.getString(R.string.error_empty_input)
                         )
                     }
                     return@launch
@@ -85,12 +117,11 @@ class DownloadViewModel : ViewModel() {
                     _uiState.update {
                         it.copy(
                             isParsing = false,
-                            errorMessage = "输入的文本过长或包含无效内容\n请确保输入的是有效的B站链接或视频ID"
+                            errorMessage = BiliApp.instance.getString(R.string.error_invalid_input)
                         )
                     }
                     return@launch
                 }
-
                 input = extractedLink
 
                 if (input.contains("b23.tv") ||
@@ -121,14 +152,14 @@ class DownloadViewModel : ViewModel() {
                     _uiState.update {
                         it.copy(
                             isParsing = false,
-                            errorMessage = "无法识别视频ID\n支持的格式:\nBV号、AV号、EP号、SS号\n或完整的B站链接"
+                            errorMessage = BiliApp.instance.getString(R.string.error_cannot_identify)
                         )
                     }
                     return@launch
                 }
 
                 val cookie = settingsRepo.getCookie().first()
-                val userLevel = UserLevelDetector.detectUserLevel(cookie)
+                val userLevel = biliRepo.getUserLevel(cookie)
                 Log.d("DownloadViewModel", "User level: $userLevel")
 
                 Log.d("DownloadViewModel", "Fetching video info for: $videoId")
@@ -139,6 +170,28 @@ class DownloadViewModel : ViewModel() {
 
                 val availableQualities = filterQualitiesByUserLevel(qualities, userLevel)
                 val defaultQuality = getDefaultQuality(availableQualities, userLevel)
+
+                val subtitleList = try {
+                    val api = BiliApi()
+                    api.getSubtitles(videoId, videoInfo.pages[0].cid, cookie)
+                } catch (e: Exception) {
+                    Log.e("DownloadViewModel", "Failed to check subtitles", e)
+                    emptyList()
+                }
+
+                                val videoCodecs = try {
+                    biliRepo.getVideoCodecs(videoId, videoInfo.pages[0].cid, cookie)
+                } catch (e: Exception) {
+                    Log.e("DownloadViewModel", "Failed to get video codecs", e)
+                    emptyList()
+                }
+
+                val audioCodecs = try {
+                    biliRepo.getAudioCodecs(videoId, videoInfo.pages[0].cid, cookie)
+                } catch (e: Exception) {
+                    Log.e("DownloadViewModel", "Failed to get audio codecs", e)
+                    emptyList()
+                }
 
                 val downloadedPages = if (_uiState.value.downloadRecordCheckEnabled) {
                     checkDownloadedPages(context, videoId, videoInfo.pages, defaultQuality)
@@ -153,7 +206,7 @@ class DownloadViewModel : ViewModel() {
                 }
 
                 val initialSelectedPages = if (videoInfo.pages.size == 1) {
-                    if (!downloadedPages.contains(1)) setOf(1) else emptySet()
+                    if (!downloadedPages.contains(1)) setOf(1) else setOf(1)
                 } else {
                     emptySet()
                 }
@@ -171,9 +224,18 @@ class DownloadViewModel : ViewModel() {
                         resolvedVideoId = videoId,
                         userLevel = userLevel,
                         isParsing = false,
-                        errorMessage = null
+                        errorMessage = null,
+                        availableSubtitles = subtitleList,
+                        availableVideoCodecs = videoCodecs,
+                        availableAudioCodecs = audioCodecs,
+                        selectedVideoCodec = videoCodecs.firstOrNull()?.codecId,
+                        selectedAudioCodec = audioCodecs.firstOrNull()?.id,
+                        localFileStatus = emptyMap(),
+                        showFileManagerHint = false
                     )
                 }
+
+                checkLocalFilesForPages(videoId, videoInfo)
 
                 Log.d("DownloadViewModel", "Parse completed successfully")
             } catch (e: Exception) {
@@ -181,7 +243,7 @@ class DownloadViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isParsing = false,
-                        errorMessage = "解析失败: ${e.message}"
+                        errorMessage = BiliApp.instance.getString(R.string.error_parse_failed, e.message ?: "")
                     )
                 }
             }
@@ -237,6 +299,7 @@ class DownloadViewModel : ViewModel() {
             }
             it.copy(selectedPages = newSet)
         }
+        recalculateFileManagerHint()
     }
 
     fun toggleEpisode(episodeId: Long) {
@@ -249,6 +312,7 @@ class DownloadViewModel : ViewModel() {
             }
             it.copy(selectedEpisodes = newSet)
         }
+        recalculateFileManagerHint()
     }
 
     fun selectAllPages() {
@@ -258,16 +322,17 @@ class DownloadViewModel : ViewModel() {
             val allEpisodes = videoInfo.ugcSeason?.sections?.flatMap { s -> s.episodes.map { e -> e.id } }?.toSet()?.let { eps ->
                 eps - it.downloadedEpisodes
             } ?: emptySet()
-
             it.copy(
                 selectedPages = allPages,
                 selectedEpisodes = allEpisodes
             )
         }
+        recalculateFileManagerHint()
     }
 
     fun deselectAllPages() {
         _uiState.update { it.copy(selectedPages = emptySet(), selectedEpisodes = emptySet()) }
+        recalculateFileManagerHint()
     }
 
     fun reverseSelectPages() {
@@ -275,17 +340,16 @@ class DownloadViewModel : ViewModel() {
             val videoInfo = it.videoInfo ?: return@update it
             val allPages = videoInfo.pages.map { p -> p.page }.toSet() - it.downloadedPages
             val newPages = allPages - it.selectedPages
-
             val allEpisodes = videoInfo.ugcSeason?.sections?.flatMap { s -> s.episodes.map { e -> e.id } }?.toSet()?.let { eps ->
                 eps - it.downloadedEpisodes
             } ?: emptySet()
             val newEpisodes = allEpisodes - it.selectedEpisodes
-
             it.copy(
                 selectedPages = newPages,
                 selectedEpisodes = newEpisodes
             )
         }
+        recalculateFileManagerHint()
     }
 
     fun selectQuality(qn: Int) {
@@ -294,6 +358,7 @@ class DownloadViewModel : ViewModel() {
 
     fun selectDownloadMode(mode: DownloadMode) {
         _uiState.update { it.copy(downloadMode = mode) }
+        refreshLocalFileStatus()
     }
 
     fun toggleSeparateVideo() {
@@ -305,6 +370,7 @@ class DownloadViewModel : ViewModel() {
                 it.copy(separateVideoSelected = newValue)
             }
         }
+        refreshLocalFileStatus()
     }
 
     fun toggleSeparateAudio() {
@@ -316,10 +382,30 @@ class DownloadViewModel : ViewModel() {
                 it.copy(separateAudioSelected = newValue)
             }
         }
+        refreshLocalFileStatus()
     }
 
     fun updateExtraContent(extraContent: ExtraContent) {
         _uiState.update { it.copy(extraContent = extraContent) }
+        recalculateFileManagerHint()
+    }
+
+    fun selectVideoCodec(codecId: String) {
+        _uiState.update { it.copy(selectedVideoCodec = codecId) }
+    }
+
+    fun selectAudioCodec(codecId: Int) {
+        _uiState.update { it.copy(selectedAudioCodec = codecId) }
+    }
+
+    private fun recalculateFileManagerHint() {
+        val state = _uiState.value
+        if (!state.smartDownloadEnabled || state.localFileStatus.isEmpty()) {
+            _uiState.update { it.copy(showFileManagerHint = false) }
+            return
+        }
+        val showHint = !state.hasContentToDownload()
+        _uiState.update { it.copy(showFileManagerHint = showHint) }
     }
 
     fun disableNetworkWarning() {
@@ -334,19 +420,24 @@ class DownloadViewModel : ViewModel() {
             val videoInfo = state.videoInfo ?: return@launch
             val videoId = state.resolvedVideoId
 
+            if (!hasStoragePermission(context)) {
+                _uiState.update { it.copy(errorMessage = BiliApp.instance.getString(R.string.error_no_storage_permission)) }
+                return@launch
+            }
+
             if (videoId.isEmpty()) {
-                _uiState.update { it.copy(errorMessage = "视频ID无效，请重新解析") }
+                _uiState.update { it.copy(errorMessage = BiliApp.instance.getString(R.string.error_invalid_video_id)) }
                 return@launch
             }
 
             if (state.selectedPages.isEmpty() && state.selectedEpisodes.isEmpty()) {
-                _uiState.update { it.copy(errorMessage = "请至少选择一个分P或合集") }
+                _uiState.update { it.copy(errorMessage = BiliApp.instance.getString(R.string.error_select_page)) }
                 return@launch
             }
 
             if (state.downloadMode == DownloadMode.SEPARATE &&
                 !state.separateVideoSelected && !state.separateAudioSelected) {
-                _uiState.update { it.copy(errorMessage = "分离下载模式下至少选择视频或音频") }
+                _uiState.update { it.copy(errorMessage = BiliApp.instance.getString(R.string.error_separate_select)) }
                 return@launch
             }
 
@@ -355,12 +446,15 @@ class DownloadViewModel : ViewModel() {
                     isDownloading = true,
                     errorMessage = null,
                     downloadComplete = false,
-                    downloadProgress = DownloadProgress(videoText = "准备下载...")
+                    downloadProgress = DownloadProgress(videoText = BiliApp.instance.getString(R.string.preparing_download))
                 )
             }
 
+            startDownloadNotification(context, videoInfo.title)
+
             var hasError = false
             var errorMsg: String? = null
+            var lastNotificationUpdate = 0L
 
             try {
                 val cookie = settingsRepo.getCookie().first()
@@ -375,6 +469,8 @@ class DownloadViewModel : ViewModel() {
                     else -> DownloadMode.MERGE
                 }
 
+                val overwriteExisting = !state.smartDownloadEnabled
+
                 val pagesToDownload = videoInfo.pages.filter { state.selectedPages.contains(it.page) }
                 val episodesToDownload = videoInfo.ugcSeason?.sections?.flatMap { it.episodes }?.filter {
                     state.selectedEpisodes.contains(it.id)
@@ -382,7 +478,6 @@ class DownloadViewModel : ViewModel() {
 
                 val totalCount = pagesToDownload.size + episodesToDownload.size
 
-                // Build all tasks first, then enqueue together for concurrent execution
                 val allTasks = mutableListOf<DownloadTask>()
                 var taskIndex = 0
 
@@ -400,7 +495,7 @@ class DownloadViewModel : ViewModel() {
                         quality = state.selectedQuality,
                         onExecute = {
                             try {
-                                downloadRepo.downloadPage(
+                                                                downloadRepo.downloadPage(
                                     videoId = videoId,
                                     page = page,
                                     quality = state.selectedQuality,
@@ -418,7 +513,16 @@ class DownloadViewModel : ViewModel() {
                                                 )
                                             )
                                         }
-                                    }
+                                        val now = System.currentTimeMillis()
+                                        if (now - lastNotificationUpdate > 1000) {
+                                            lastNotificationUpdate = now
+                                            val overallPercent = calculateOverallProgress(progress, idx, totalCount)
+                                            updateDownloadNotification(context, "${page.part} ($idx/$totalCount)", overallPercent)
+                                        }
+                                    },
+                                    overwriteExisting = overwriteExisting,
+                                    videoCodec = state.selectedVideoCodec,
+                                    audioCodecId = state.selectedAudioCodec
                                 )
                             } catch (e: Exception) {
                                 Log.e("DownloadViewModel", "Failed to download page ${page.page}", e)
@@ -449,7 +553,7 @@ class DownloadViewModel : ViewModel() {
                         quality = state.selectedQuality,
                         onExecute = {
                             try {
-                                downloadRepo.downloadPage(
+                                                                downloadRepo.downloadPage(
                                     videoId = episode.bvid,
                                     page = episodePage,
                                     quality = state.selectedQuality,
@@ -467,7 +571,16 @@ class DownloadViewModel : ViewModel() {
                                                 )
                                             )
                                         }
-                                    }
+                                        val now = System.currentTimeMillis()
+                                        if (now - lastNotificationUpdate > 1000) {
+                                            lastNotificationUpdate = now
+                                            val overallPercent = calculateOverallProgress(progress, idx, totalCount)
+                                            updateDownloadNotification(context, "${episode.title} ($idx/$totalCount)", overallPercent)
+                                        }
+                                    },
+                                    overwriteExisting = overwriteExisting,
+                                    videoCodec = state.selectedVideoCodec,
+                                    audioCodecId = state.selectedAudioCodec
                                 )
                             } catch (e: Exception) {
                                 Log.e("DownloadViewModel", "Failed to download episode ${episode.id}", e)
@@ -477,17 +590,15 @@ class DownloadViewModel : ViewModel() {
                     ))
                 }
 
-                // Enqueue all tasks and wait for completion
                 DownloadQueueManager.enqueueAllAndAwait(allTasks)
-
             } catch (e: Exception) {
                 Log.e("DownloadViewModel", "Download error", e)
                 hasError = true
                 errorMsg = formatErrorMessage(e)
             }
 
-            // Refresh downloaded status so UI hides download button for completed items
             val currentState = _uiState.value
+
             val updatedDownloadedPages = if (currentState.downloadRecordCheckEnabled && currentState.videoInfo != null) {
                 try {
                     checkDownloadedPages(context, videoId, currentState.videoInfo.pages, state.selectedQuality)
@@ -508,7 +619,6 @@ class DownloadViewModel : ViewModel() {
                 currentState.downloadedEpisodes
             }
 
-            // Remove successfully downloaded pages/episodes from selection
             val remainingPages = currentState.selectedPages - updatedDownloadedPages
             val remainingEpisodes = currentState.selectedEpisodes - updatedDownloadedEpisodes
 
@@ -525,8 +635,110 @@ class DownloadViewModel : ViewModel() {
                 )
             }
 
+            val currentVideoInfo = _uiState.value.videoInfo
+            if (currentVideoInfo != null) {
+                checkLocalFilesForPages(videoId, currentVideoInfo)
+            }
+
             if (!hasError) {
+                completeDownloadNotification(context, videoInfo.title)
                 Log.d("DownloadViewModel", "All downloads completed successfully")
+            } else {
+                errorDownloadNotification(context, errorMsg ?: BiliApp.instance.getString(R.string.error_download_failed))
+            }
+        }
+    }
+
+    private fun startDownloadNotification(context: Context, title: String) {
+        val intent = Intent(context, DownloadService::class.java).apply {
+            action = DownloadService.ACTION_START_DOWNLOAD
+            putExtra(DownloadService.EXTRA_TITLE, title)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
+    }
+
+    private fun updateDownloadNotification(context: Context, title: String, progress: Int) {
+        val intent = Intent(context, DownloadService::class.java).apply {
+            action = DownloadService.ACTION_UPDATE_PROGRESS
+            putExtra(DownloadService.EXTRA_TITLE, title)
+            putExtra(DownloadService.EXTRA_PROGRESS, progress)
+        }
+        context.startService(intent)
+    }
+
+    private fun completeDownloadNotification(context: Context, title: String) {
+        val intent = Intent(context, DownloadService::class.java).apply {
+            action = DownloadService.ACTION_COMPLETE
+            putExtra(DownloadService.EXTRA_TITLE, title)
+        }
+        context.startService(intent)
+    }
+
+    private fun errorDownloadNotification(context: Context, error: String) {
+        val intent = Intent(context, DownloadService::class.java).apply {
+            action = DownloadService.ACTION_ERROR
+            putExtra(DownloadService.EXTRA_ERROR, error)
+        }
+        context.startService(intent)
+    }
+
+    private fun calculateOverallProgress(progress: DownloadProgress, currentIndex: Int, totalCount: Int): Int {
+        if (totalCount <= 0) return 0
+        val taskProgress = (progress.videoProgress * 0.4f + progress.audioProgress * 0.4f + progress.mergeProgress * 0.2f)
+        val overall = ((currentIndex - 1).toFloat() / totalCount + taskProgress / totalCount) * 100
+        return overall.toInt().coerceIn(0, 100)
+    }
+
+    fun refreshLocalFileStatus() {
+        val state = _uiState.value
+        val videoInfo = state.videoInfo ?: return
+        val videoId = state.resolvedVideoId
+        if (videoId.isEmpty()) return
+        viewModelScope.launch {
+            checkLocalFilesForPages(videoId, videoInfo)
+        }
+    }
+
+    private suspend fun checkLocalFilesForPages(videoId: String, videoInfo: VideoInfo) {
+        withContext(Dispatchers.IO) {
+            try {
+                val downloadPath = settingsRepo.getDownloadPath().first()
+                val filenameFormat = settingsRepo.getFilenameFormat().first()
+
+                val bvid = if (videoId.startsWith("BV", ignoreCase = true)) videoId else ""
+                val avid = if (videoId.startsWith("av", ignoreCase = true)) videoId else ""
+
+                val statusMap = mutableMapOf<Int, LocalFileStatus>()
+
+                for (page in videoInfo.pages) {
+                    val metadata = VideoMetadata(
+                        title = videoInfo.title,
+                        author = videoInfo.author,
+                        bvid = bvid,
+                        avid = avid,
+                        partTitle = page.part,
+                        partNum = page.page,
+                        quality = "",
+                        description = videoInfo.description
+                    )
+                    val baseFilename = FileUtil.formatFilename(filenameFormat, metadata)
+                    val localStatus = FileUtil.checkLocalFiles(downloadPath, baseFilename)
+                    statusMap[page.page] = localStatus
+                }
+
+                _uiState.update {
+                    it.copy(localFileStatus = statusMap)
+                }
+
+                recalculateFileManagerHint()
+
+                Log.d("DownloadViewModel", "Local file check: ${statusMap.size} pages")
+            } catch (e: Exception) {
+                Log.e("DownloadViewModel", "Failed to check local files", e)
             }
         }
     }
@@ -534,34 +746,34 @@ class DownloadViewModel : ViewModel() {
     private fun formatErrorMessage(e: Exception): String {
         return when {
             e.message?.contains("127.0.0.1") == true ||
-            e.message?.contains("localhost") == true -> {
-                "网络配置异常：DNS解析到本地地址\n可能是VPN/代理/AdGuard等软件导致\n请尝试关闭后重试"
+                e.message?.contains("localhost") == true -> {
+                BiliApp.instance.getString(R.string.error_dns_local)
             }
             e.message?.contains("ECONNREFUSED") == true -> {
-                "连接被拒绝\n请检查网络连接或关闭代理软件"
+                BiliApp.instance.getString(R.string.error_connection_refused)
             }
             e.message?.contains("timeout") == true ||
-            e.message?.contains("Timeout") == true -> {
-                "下载超时\n请检查网络连接"
+                e.message?.contains("Timeout") == true -> {
+                BiliApp.instance.getString(R.string.error_timeout)
             }
             e.message?.contains("No addresses") == true -> {
-                "DNS解析失败\n请检查网络连接"
+                BiliApp.instance.getString(R.string.error_dns_failed)
             }
             e.message?.contains("Unable to resolve host") == true -> {
-                "无法解析服务器地址\n请检查网络连接"
+                BiliApp.instance.getString(R.string.error_host_unresolved)
             }
             else -> {
-                "下载失败: ${e.message ?: "未知错误"}"
+                BiliApp.instance.getString(R.string.error_download_generic, e.message ?: BiliApp.instance.getString(R.string.error_unknown))
             }
         }
     }
 
     private fun containsVideoId(input: String): Boolean {
         return input.contains(Regex("BV[a-zA-Z0-9]+")) ||
-               input.contains(Regex("bv[a-zA-Z0-9]+")) ||
-               input.contains(Regex("av\\d+", RegexOption.IGNORE_CASE)) ||
-               input.contains(Regex("ep\\d+", RegexOption.IGNORE_CASE)) ||
-               input.contains(Regex("ss\\d+", RegexOption.IGNORE_CASE))
+            input.contains(Regex("bv[a-zA-Z0-9]+")) ||
+            input.contains(Regex("av\\d+", RegexOption.IGNORE_CASE)) ||
+            input.contains(Regex("ep\\d+", RegexOption.IGNORE_CASE)) ||
+            input.contains(Regex("ss\\d+", RegexOption.IGNORE_CASE))
     }
 
     private fun extractVideoId(input: String): String {
@@ -620,6 +832,30 @@ class DownloadViewModel : ViewModel() {
             UserLevel.VIP -> qualities.firstOrNull()?.qn ?: 80
         }
     }
+
+    private fun hasStoragePermission(context: Context): Boolean {
+        return when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
+                ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.READ_MEDIA_VIDEO
+                ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                    ) == PackageManager.PERMISSION_GRANTED
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.READ_MEDIA_VIDEO
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+            else -> true
+        }
+    }
 }
 
 data class DownloadUiState(
@@ -645,12 +881,43 @@ data class DownloadUiState(
     val downloadComplete: Boolean = false,
     val networkWarningEnabled: Boolean = true,
     val extraContentEnabled: Boolean = false,
-    val downloadRecordCheckEnabled: Boolean = true
+    val downloadRecordCheckEnabled: Boolean = true,
+    val smartDownloadEnabled: Boolean = true,
+    val localFileStatus: Map<Int, LocalFileStatus> = emptyMap(),
+    val showFileManagerHint: Boolean = false,
+    val availableSubtitles: List<SubtitleInfo> = emptyList(),
+    val availableVideoCodecs: List<VideoCodecInfo> = emptyList(),
+    val availableAudioCodecs: List<AudioCodecInfo> = emptyList(),
+    val selectedVideoCodec: String? = null,
+    val selectedAudioCodec: Int? = null
 ) {
     val canDownload: Boolean
-        get() = videoInfo != null &&
-                (selectedPages.isNotEmpty() || selectedEpisodes.isNotEmpty()) &&
-                !isDownloading &&
-                resolvedVideoId.isNotEmpty() &&
-                (downloadMode != DownloadMode.SEPARATE || separateVideoSelected || separateAudioSelected)
+        get() {
+            if (videoInfo == null || resolvedVideoId.isEmpty() || isDownloading) return false
+            if (selectedPages.isEmpty() && selectedEpisodes.isEmpty()) return false
+            if (downloadMode == DownloadMode.SEPARATE && !separateVideoSelected && !separateAudioSelected) return false
+            if (!smartDownloadEnabled) return true
+            return hasContentToDownload()
+        }
+
+    internal fun hasContentToDownload(): Boolean {
+        if (localFileStatus.isEmpty()) return true
+
+        for (page in selectedPages) {
+            val status = localFileStatus[page] ?: return true
+            if (status.hasNewContentToDownload(
+                    wantCover = extraContent.downloadCover,
+                    wantDanmaku = extraContent.downloadDanmaku,
+                    wantSubtitle = extraContent.downloadSubtitle,
+                    downloadMode = downloadMode,
+                    wantSeparateVideo = separateVideoSelected,
+                    wantSeparateAudio = separateAudioSelected
+                )
+            ) return true
+        }
+
+        if (selectedEpisodes.isNotEmpty()) return true
+
+        return false
+    }
 }

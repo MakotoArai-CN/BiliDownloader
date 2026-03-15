@@ -8,7 +8,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.bilidownloader.app.R
 import com.bilidownloader.app.data.model.DownloadMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +30,7 @@ fun DownloadModeSelector(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "下载模式",
+                text = stringResource(R.string.download_mode),
                 style = MaterialTheme.typography.titleSmall
             )
 
@@ -36,8 +38,8 @@ fun DownloadModeSelector(
 
             DownloadModeItem(
                 icon = Icons.Default.Merge,
-                title = "合并下载",
-                description = "音视频合并为MP4文件",
+                title = stringResource(R.string.merge_download),
+                description = stringResource(R.string.merge_download_full_desc),
                 isSelected = selectedMode == DownloadMode.MERGE,
                 recommended = true,
                 onClick = { onModeSelect(DownloadMode.MERGE) }
@@ -47,8 +49,8 @@ fun DownloadModeSelector(
 
             DownloadModeItem(
                 icon = Icons.Default.Splitscreen,
-                title = "分离下载",
-                description = "音视频分别保存为M4S文件",
+                title = stringResource(R.string.separate_download_title),
+                description = stringResource(R.string.separate_download_full_desc),
                 isSelected = selectedMode == DownloadMode.SEPARATE,
                 onClick = { onModeSelect(DownloadMode.SEPARATE) }
             )
@@ -62,7 +64,7 @@ fun DownloadModeSelector(
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                 ) {
                     Text(
-                        text = "选择下载内容",
+                        text = stringResource(R.string.select_content),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -76,7 +78,7 @@ fun DownloadModeSelector(
                         FilterChip(
                             selected = videoSelected,
                             onClick = onVideoToggle,
-                            label = { Text("视频") },
+                            label = { Text(stringResource(R.string.video)) },
                             leadingIcon = if (videoSelected) {
                                 {
                                     Icon(
@@ -92,7 +94,7 @@ fun DownloadModeSelector(
                         FilterChip(
                             selected = audioSelected,
                             onClick = onAudioToggle,
-                            label = { Text("音频") },
+                            label = { Text(stringResource(R.string.audio)) },
                             leadingIcon = if (audioSelected) {
                                 {
                                     Icon(
@@ -109,7 +111,7 @@ fun DownloadModeSelector(
                     if (!videoSelected && !audioSelected) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "至少选择一项",
+                            text = stringResource(R.string.select_at_least_one),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -172,7 +174,7 @@ private fun DownloadModeItem(
                             onClick = {},
                             label = {
                                 Text(
-                                    text = "推荐",
+                                    text = stringResource(R.string.recommended),
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             },
