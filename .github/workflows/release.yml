@@ -17,6 +17,8 @@ jobs:
       tag_exists: ${{ steps.check_tag.outputs.exists }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Extract version from build.gradle.kts
         id: version
@@ -126,12 +128,22 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          VERSION="v${{ needs.get-version.outputs.version }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
           if [ -z "$PREV_TAG" ]; then
-            CHANGES=$(git log --pretty=format:"- %s" -20)
+            RAW_LOGS=$(git log --pretty=format:"%s (%h)" -20)
           else
-            CHANGES=$(git log --pretty=format:"- %s" "${PREV_TAG}..HEAD")
+            RAW_LOGS=$(git log --pretty=format:"%s (%h)" "${PREV_TAG}..HEAD")
           fi
+
+          CHANGES=""
+          while IFS= read -r line; do
+            clean=$(echo "$line" | sed 's/^```[[:space:]]*//' | sed 's/```$//')
+            if [ -n "$clean" ]; then
+              CHANGES="${CHANGES}- ${clean}"$'\n'
+            fi
+          done <<< "$RAW_LOGS"
 
           {
             echo "changes<<EOF"
@@ -147,20 +159,25 @@ jobs:
           body: |
             ## BiliDownloader v${{ needs.get-version.outputs.version }}
 
-            ### Changes
+            ### 更新日志
+
             ${{ steps.changelog.outputs.changes }}
 
-            ### Downloads
+            ---
 
-            | Architecture | Download |
-            |---|---|
-            | Universal (all architectures) | `BiliDownloader-v${{ needs.get-version.outputs.version }}-universal.apk` |
-            | ARM64 (most modern phones) | `BiliDownloader-v${{ needs.get-version.outputs.version }}-arm64-v8a.apk` |
-            | ARM32 (older phones) | `BiliDownloader-v${{ needs.get-version.outputs.version }}-armeabi-v7a.apk` |
-            | x86_64 (emulators/tablets) | `BiliDownloader-v${{ needs.get-version.outputs.version }}-x86_64.apk` |
-            | x86 (older emulators) | `BiliDownloader-v${{ needs.get-version.outputs.version }}-x86.apk` |
+            ### 📦 下载
 
-            > **Tip**: Most users should download the **ARM64** version. If unsure, use the **Universal** version.
+            | 下载 | 说明 |
+            |:----:|:-----|
+            | [![Universal](https://img.shields.io/badge/Android-Universal-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/${{ github.repository }}/releases/download/v${{ needs.get-version.outputs.version }}/BiliDownloader-v${{ needs.get-version.outputs.version }}-universal.apk) | 通用版（所有架构） |
+            | [![ARM64](https://img.shields.io/badge/Android-ARM64-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/${{ github.repository }}/releases/download/v${{ needs.get-version.outputs.version }}/BiliDownloader-v${{ needs.get-version.outputs.version }}-arm64-v8a.apk) | ARM64（大多数新手机） |
+            | [![ARMv7](https://img.shields.io/badge/Android-ARMv7-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/${{ github.repository }}/releases/download/v${{ needs.get-version.outputs.version }}/BiliDownloader-v${{ needs.get-version.outputs.version }}-armeabi-v7a.apk) | ARMv7（旧手机） |
+            | [![x86_64](https://img.shields.io/badge/Android-x86__64-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/${{ github.repository }}/releases/download/v${{ needs.get-version.outputs.version }}/BiliDownloader-v${{ needs.get-version.outputs.version }}-x86_64.apk) | x86_64（模拟器/平板） |
+            | [![x86](https://img.shields.io/badge/Android-x86-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/${{ github.repository }}/releases/download/v${{ needs.get-version.outputs.version }}/BiliDownloader-v${{ needs.get-version.outputs.version }}-x86.apk) | x86（旧模拟器） |
+
+            ---
+
+            > 💡 **提示**：大多数用户请下载 **ARM64** 版本。如果不确定设备架构，请下载 **Universal** 版本。
           files: release-apks/*.apk
           draft: false
           prerelease: false
